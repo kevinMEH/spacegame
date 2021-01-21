@@ -101,7 +101,7 @@ Every planet has a goal, indicated by the **goalAction** variable of each planet
 
 - **actionType:**
 
-    The type of action that the lambda is trying to execute, whether its an OFFENSIVE, ATTACK or DEVELOP action.
+    The type of action that the lambda is trying to execute, whether its an OFFENSIVE, ATTACK or DEVELOP action. <br>
     ex: () -> this.botStartAttack(homePlanet, enemyPlanet)
 >
     Goals makes sure that planets plan for the long term and remember what past actions should be completed.
