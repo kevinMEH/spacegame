@@ -145,3 +145,6 @@ The actions of the bot depends on 3 algorithms that represent its actions. (Ther
 
 This game was made for a school project. This game is made for educational purposes.
 I hope you enjoyed playing this game or exploring the code. Thanks for viewing!
+
+## License
+[MIT](/LICENSE.md)
