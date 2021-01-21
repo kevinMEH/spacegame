@@ -206,35 +206,7 @@ public class Empire { // Empire, along with all stats
         
         // PHASE 2: Checks power difference and attempts to build ships and start attack.
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
-        int powerDiff = (int) (enemyDefensivePower * 1.3 - calcOffensivePower(planet)); // How much more power we need to attack effectively
         List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
-        if(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3) {
-            Ship targetShip = ships.get(0);
-            for(Ship ship : ships) {
-                if(powerDiff < ship.getOffensivePower()) {
-                    // Tries to find the least most powerful ship that we can build to attack
-                    // This is so it won't try to build the best ship or the worst ship.
-                    targetShip = ship;
-                    break;
-                }
-            }
-            Ship shipToBeBuilt = targetShip; // We need this because lambda won't work otherwise.
-            if(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, shipToBeBuilt)) {
-                shipToBeBuilt.build(planet);
-                availableMetal = availableMetal - shipToBeBuilt.getMetalCost();
-                availableCrystal = availableCrystal - shipToBeBuilt.getCrystalCost();
-            } else { // Set goal if not enough resources to build
-                if(shipToBeBuilt.getOffensivePower() == 0) {
-                    System.out.println("ERROR: Ship to be built has 0 offensive power. offensiveAction() + " + planet);
-                } else {
-                    planet.resetGoalStatus();
-                    planet.setMetalGoal(shipToBeBuilt.getMetalCost());
-                    planet.setCrystalGoal(shipToBeBuilt.getCrystalCost());
-                    planet.setGoalAction(() -> shipToBeBuilt.build(planet));
-                    planet.setActionType(ActionType.OFFENSIVE);
-                }
-            }
-        }
         while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3) {
             for(int i = ships.size() - 1; i >= 0; i--) {
                 Ship ship = ships.get(i);
@@ -410,7 +382,7 @@ public class Empire { // Empire, along with all stats
     static Random random = new Random();
 
     public void newTarget() { // Selects new primary target.
-        if(((int) (15 * Math.random()) == 0 && getDaysSinceLastAttack() > 15) 
+        if((random.nextInt(15) == 0 && getDaysSinceLastAttack() > 15)
         || target == null || target.checkDestroyed()) {
             switch (affiliation) {
                 case ALIEN -> target = Game.humans.get(random.nextInt(Game.humans.size()));
