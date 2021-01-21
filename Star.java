@@ -1,10 +1,10 @@
 public class Star extends Coordinates { // Star of a planetary system.
 
-    private BlackHole blackHole;
+    private final BlackHole blackHole;
 
-    private Planet[] planets = new Planet[10]; // Array of 10 planets for each sun.
+    private final Planet[] planets = new Planet[10]; // Array of 10 planets for each sun.
 
-    private int systemIndex;
+    private final int systemIndex;
 
     public void initializePlanets() { // Initializes the 10 planets and add to array
         for(int i = 0; i < 10; i++) {

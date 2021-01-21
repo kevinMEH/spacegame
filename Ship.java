@@ -1,13 +1,13 @@
 public class Ship {
 
-    private String name;
+    private final String name;
     private String description;
 
-    private int metalCost;
-    private int crystalCost;
+    private final int metalCost;
+    private final int crystalCost;
 
-    private int health;
-    private int attack;
+    private final int health;
+    private final int attack;
     private int storage = 1000;
     
     private double offensivePower; public double getOffensivePower() {return offensivePower;}

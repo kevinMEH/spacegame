@@ -9,13 +9,13 @@ public class Expedition {
         PERMTRANSPORT,
     }
     
-    private ExpeditionType expeditionType;
+    private final ExpeditionType expeditionType;
     public ExpeditionType getExpeditionType() {return expeditionType;}
 
-    private Planet attacker;
-    private Planet defender;
+    private final Planet attacker;
+    private final Planet defender;
     private Map<Ship, Integer> attackerFleet;
-    ExpeditionStatus expeditionStatus = ExpeditionStatus.ONGOING;
+    private ExpeditionStatus expeditionStatus = ExpeditionStatus.ONGOING;
     private int flightTime;
     private int timeLeft;
     
@@ -195,32 +195,26 @@ public class Expedition {
         return true;
     }
     public void conclude(Planet attacker, Planet defender) {
-        switch(expeditionStatus) {
-            case SUCCESS:
-            System.out.println(attacker.getName() + " has successfully destroyed " + defender.getName() + "!");
-            defender.destroy();
-            loot();
-            startReturn();
-            break;
-
-            case FAILURE:
-            System.out.println(defender.getName() + " has successfully defended against " + attacker.getName() + "!");
-            removeThis();
-            break;
-
-            case DRAW:
-            System.out.println(attacker.getName() + " and " + defender.getName() + " were unable to destroy each other.");
-            startReturn();
-            break;
-
-            case ONGOING:
-            System.out.println("ERROR: attackStatus ONGOING at conclude()!");
-            break;
-            
-            case EMPTY:
-            System.out.println(attacker.getName() + " arrived at " + defender.getName() + " but it was already destroyed!");
-            startReturn();
-            break;
+        switch (expeditionStatus) {
+            case SUCCESS -> {
+                System.out.println(attacker.getName() + " has successfully destroyed " + defender.getName() + "!");
+                defender.destroy();
+                loot();
+                startReturn();
+            }
+            case FAILURE -> {
+                System.out.println(defender.getName() + " has successfully defended against " + attacker.getName() + "!");
+                removeThis();
+            }
+            case DRAW -> {
+                System.out.println(attacker.getName() + " and " + defender.getName() + " were unable to destroy each other.");
+                startReturn();
+            }
+            case ONGOING -> System.out.println("ERROR: attackStatus ONGOING at conclude()!");
+            case EMPTY -> {
+                System.out.println(attacker.getName() + " arrived at " + defender.getName() + " but it was already destroyed!");
+                startReturn();
+            }
         }
     }
     public void loot() {
@@ -239,7 +233,7 @@ public class Expedition {
         boolean selected = false;
         while(!selected) {
             System.out.println("How much metal would you like to take?");
-            int response = 0;
+            int response;
             try {
                 response = Integer.parseInt(Game.scanner.nextLine());
             } catch (Exception e) {
@@ -291,7 +285,7 @@ public class Expedition {
             return false;
         }
         if(number < 0) {
-            System.out.println("ERROR: You cannot take negative amounts of resouces!");
+            System.out.println("ERROR: You cannot take negative amounts of resources!");
             return false;
         }
         return true;
@@ -378,19 +372,10 @@ public class Expedition {
         if(timeLeft == 0 && expeditionStatus != ExpeditionStatus.ONGOING) fleetReturn();
     }
     public void expeditionSequence() {
-        switch(expeditionType) {
-            case ATTACK:
-            attackSequence();
-            break;
-            
-            case COLONIZATION:
-            colonizationSequence();
-            break;
-            
-            case PERMTRANSPORT:
-            case TRANSPORT:
-            transportSequence();
-            break;
+        switch (expeditionType) {
+            case ATTACK -> attackSequence();
+            case COLONIZATION -> colonizationSequence();
+            case PERMTRANSPORT, TRANSPORT -> transportSequence();
         }
     }
 

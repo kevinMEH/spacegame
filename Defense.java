@@ -1,13 +1,13 @@
 public class Defense {
 
-    private String name;
+    private final String name;
     private String description;
 
-    private int metalCost;
-    private int crystalCost;
+    private final int metalCost;
+    private final int crystalCost;
 
-    private int health;
-    private int attack;
+    private final int health;
+    private final int attack;
 
     private double defensivePower; public double getDefensivePower() {return defensivePower;}
     public void setPower(double power) {this.defensivePower = power;} 

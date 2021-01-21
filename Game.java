@@ -146,15 +146,15 @@ public class Game { // Main game and cycle
     }
     
     public static boolean checkGameEnd() {
-        switch(player.getAffilication()) {
-            case ALIEN:
-            if(humans.isEmpty()) gameStatus = GameStatus.SUCCESS;
-            if(!aliens.contains(player)) gameStatus = GameStatus.FAILURE;
-            break;
-            case HUMAN:
-            if(aliens.isEmpty()) gameStatus = GameStatus.SUCCESS;
-            if(!humans.contains(player)) gameStatus = GameStatus.FAILURE;
-            break;
+        switch (player.getAffilication()) {
+            case ALIEN -> {
+                if (humans.isEmpty()) gameStatus = GameStatus.SUCCESS;
+                if (!aliens.contains(player)) gameStatus = GameStatus.FAILURE;
+            }
+            case HUMAN -> {
+                if (aliens.isEmpty()) gameStatus = GameStatus.SUCCESS;
+                if (!humans.contains(player)) gameStatus = GameStatus.FAILURE;
+            }
         }
         if(gameStatus == GameStatus.FAILURE) {
             System.out.println("All of your planets were destroyed! You lost...");
@@ -185,7 +185,7 @@ public class Game { // Main game and cycle
         sleep(1000);
         System.out.println("Humanity finally resettled on another planet, in another solar system. However, there is a problem.");
         sleep(1000);
-        System.out.println("Hostile aliens have sensed the presense of humans and they are not happy.");
+        System.out.println("Hostile aliens have sensed the presence of humans and they are not happy.");
         sleep(1000);
         System.out.println("Weary of the human tendency to pollute their planet and take over other countries, the aliens declared war on the humans.");
         sleep(1000);

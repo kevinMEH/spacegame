@@ -34,8 +34,8 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     
     private String name;
     private Empire empire;
-    private Star star;
-    private int planetIndex; // Index of the planet
+    private final Star star;
+    private final int planetIndex; // Index of the planet
     private boolean colonized = false; // TODO: Add colonization
     private boolean initiated = false;
     private boolean destroyed = false;
@@ -59,7 +59,7 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     private int metalGoal;
     private int crystalGoal;
     private int deuteriumGoal;
-    private Action goalAction; // What to execute when goal is met
+    private Action goalAction; // What to execute when goal is met // TODO: Make it so that goals are not overrided
     private ActionType actionType;
 
     public interface Action {void execute();}
@@ -279,7 +279,7 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     private Building crystalMine ;
     private Building deuteriumMine ;
     private Building solarPanel ;
-    // private Building researchFacility; TODO: Add reseraching
+    // private Building researchFacility; TODO: Add researching
     private Building shipyard ;
 
     private void initializeBuildings() {
@@ -383,83 +383,5 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     public void setMetalGoal(int goal) {metalGoal = goal;}
     public void setCrystalGoal(int goal) {crystalGoal = goal;}
     public void setDeuteriumGoal(int goal) {deuteriumGoal = goal;}
-
-    // DEPRECATED:
-
-    // In: Empire.java
-    /*
-    public int getTotalWorkforce() {
-        int totalWorkforce = 0;
-        for(Planet planet : planets) {
-            totalWorkforce = totalWorkforce + planet.getTotalWorkforce();
-        }
-        return totalWorkforce;
-    }
-    */
-
-    // In: Planet.java
-
-    // private int totalWorkforce;
-    // private int unusedWorkforce;
-    // Size of the planet, determines how many people can occupy the planet and how many buildings.
-    // private int size;
-
-    /*
-    public boolean enoughWorkforce(Building building) {
-        int assignedWorkforce = building.getAssignedWorkforce();
-        if(unusedWorkforce >= assignedWorkforce) {
-            return true;
-        } else {
-            System.out.println("You do not have enough workforce to perform this action!");
-            return false;
-        }
-    }
-    */
-
-    /*
-    public void useWorkforce(Building building) {
-        int assignedWorkforce = building.getAssignedWorkforce();
-        unusedWorkforce = unusedWorkforce - assignedWorkforce;
-    }
-    */
-
-    /*
-    public int getTotalWorkforce() {
-        return totalWorkforce;
-    }
-
-    public void addTotalWorkforce(int diff) {
-        totalWorkforce = totalWorkforce + diff;
-    }
-
-    public void remWorkforce(int diff) {
-        unusedWorkforce = unusedWorkforce - diff;
-    }
-
-    In: Buildings.java
-    private int requiredWorkforce;
-    private int assignedWorkforce;
-
-    public double getEfficiency() { // https://www.desmos.com/calculator/lanwzzyipt
-        int required = getRequiredWorkforce();
-        int efficiency = assignedWorkforce / required;
-        if(efficiency <= 1) return efficiency;
-        else return Math.sqrt(efficiency);
-    }
-
-        public void setAssignedWorkforce(int num) {
-        assignedWorkforce = num;
-    }
-
-    public int getAssignedWorkforce() {
-        return assignedWorkforce;
-    }
-
-    public int getRequiredWorkforce() {
-        return requiredWorkforce + 100 * level;
-    }
-
-    */
-
 
 }

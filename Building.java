@@ -1,13 +1,13 @@
 class Building {
 
     // Resource cost of building
-    private Planet planet; // Planet that the building is on.
-    private int baseMetalCost;
-    private int baseCrystalCost;
-    private int baseDeuteriumCost;
+    private final Planet planet; // Planet that the building is on.
+    private final int baseMetalCost;
+    private final int baseCrystalCost;
+    private final int baseDeuteriumCost;
     private int baseEnergyCost = 0;
     private int level = 0; // TODO: Add level cap
-    private String name;
+    private final String name;
 
     public Building(String name, Planet planet, int metalCost, int crystalCost, int deuteriumCost, boolean usesEnergy) {
         this.planet = planet;
