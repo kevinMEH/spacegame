@@ -141,8 +141,6 @@ The actions of the bot depends on 3 algorithms that represent its actions. (Ther
 >
     These algorithms are the backbone for the actions of the bot.
 
----
-
 ## **The End**
 
 This game was made for a school project. This game is made for educational purposes.
