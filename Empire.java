@@ -24,7 +24,7 @@ public class Empire { // Empire, along with all stats
 
     private final List<Planet> planets = new ArrayList<>();
 
-    public Empire() { // Initialize your empire. TODO: Initialize planet
+    public Empire() { // Initialize your empire.
         System.out.println("What do you want to name your empire?");
         name = Game.scanner.nextLine();
         while(true) {
@@ -203,8 +203,9 @@ public class Empire { // Empire, along with all stats
             }
             planet.resetGoalStatus();
         }
-        
         // PHASE 2: Checks power difference and attempts to build ships and start attack.
+        // TODO: When building ships, find defensive and offensive capabilities of ship. 
+        // Make bot form smart formations once attack formations is in effect.
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
         List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
         while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3) {
@@ -292,6 +293,7 @@ public class Empire { // Empire, along with all stats
         int availableCrystal = planet.getCrystal();
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
         List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
+        // TODO: Better build algorithm:
         while(calcOffensivePower(planet) < enemyDefensivePower * 1.1) {
             for(int i = ships.size() - 1; i >= 0; i--) {
                 Ship ship = ships.get(i);
@@ -492,141 +494,136 @@ public class Empire { // Empire, along with all stats
         }
         playerStartActions(planet);
     }
-
-    public void promptBuild(Planet planet) {
-        System.out.println();
-        System.out.println("What would you like to build on " + planet.getName() + "?");
-        System.out.println("(1) Build / Level Up | (2) Build Ships | (3) Build Defenses");
-        System.out.println();
-        String response = Game.scanner.nextLine();
-
-        switch (response) {
-            case "1", "(1)" -> levelUp(planet);
-            case "2", "(2)" -> promptBuildShips(planet);
-            case "3", "(3)" -> promptBuildDefenses(planet);
-            default -> {
-                System.out.println("You did not enter a valid response!");
+            public void promptBuild(Planet planet) {
                 System.out.println();
-            }
-        }
-    }
-
-    public void levelUp(Planet planet) {
-        List<Building> buildings = planet.getBuildings();
-        System.out.println();
-        System.out.println("What would you like to build / level up?");
-        System.out.println("Type out the building name for more information. | \"Back\" to go back.");
-        System.out.println();
-        for(Building building : buildings) {
-            System.out.println(building + " at level: " + building.getLevel());
-        }
-        String response = Game.scanner.nextLine();
-        if(response.equalsIgnoreCase("back")) {
-            return;
-        }
-        for(Building building : buildings) {
-            if(response.equalsIgnoreCase(building.toString())) {
+                System.out.println("What would you like to build on " + planet.getName() + "?");
+                System.out.println("(1) Build / Level Up | (2) Build Ships | (3) Build Defenses");
                 System.out.println();
-                System.out.println("Current Level of Building: " + building.getLevel());
-                printBuildingCost(building);
-                System.out.println("Do you want to level up this building?");
-                System.out.println("Yes | No");
-                System.out.println();
-                response = Game.scanner.nextLine();
+                String response = Game.scanner.nextLine();
 
-                if(response.equalsIgnoreCase("yes")) {
-                    building.levelUp();
+                switch (response) {
+                    case "1", "(1)" -> levelUp(planet);
+                    case "2", "(2)" -> promptBuildShips(planet);
+                    case "3", "(3)" -> promptBuildDefenses(planet);
+                    default -> {
+                        System.out.println("You did not enter a valid response!");
+                        System.out.println();
+                    }
                 }
-                return;
             }
-        }
-        System.out.println("Building not found!");
-        levelUp(planet);
-    }
-
-    public void promptBuildShips(Planet planet) {
-        System.out.println();
-        System.out.println("Which ship would you like to build?");
-        System.out.println("Type out the name of the ship for more information. | \"Back\" to go back.");
-        System.out.println();
-        for(Map.Entry<Ship, Integer> entry : planet.getShips().entrySet()) {
-            System.out.println(entry.getKey());
-        }
-
-        String response = Game.scanner.nextLine();
-
-        if(response.equalsIgnoreCase("back")) {
-            return;
-        }
-
-        for(Map.Entry<Ship, Integer> entry : planet.getShips().entrySet()) {
-            Ship ship = entry.getKey();
-            if(response.equalsIgnoreCase(ship.toString())) {
+            public void levelUp(Planet planet) {
+                List<Building> buildings = planet.getBuildings();
                 System.out.println();
-                System.out.println(ship.toString());
-                System.out.println(ship.getDescription());
-                ship.printInfo();
-                System.out.println("Shipyard level required: " + ship.getLevelRequired());
-                System.out.println("You currently have " + planet.getShipCount(ship) + " " + ship.toString() + ".");
-                System.out.println("Would you like to build more " + ship.toString() + "?");
-                System.out.println("Yes | No");
+                System.out.println("What would you like to build / level up?");
+                System.out.println("Type out the building name for more information. | \"Back\" to go back.");
                 System.out.println();
-                response = Game.scanner.nextLine();
-
-                if(response.equalsIgnoreCase("yes")) {
-                    ship.build(planet);
+                for(Building building : buildings) {
+                    System.out.println(building + " at level: " + building.getLevel());
                 }
-                return;
-            }
-        }
-        System.out.println("Ship not found! Try again.");
-        promptBuildShips(planet);
-    }
-
-    public void promptBuildDefenses(Planet planet) {
-        System.out.println();
-        System.out.println("Which defense would you like to build?");
-        System.out.println("Type out the name of the defense for more information. | \"Back\" to go back.");
-        System.out.println();
-        for(Map.Entry<Defense, Integer> entry : planet.getDefenses().entrySet()) {
-            System.out.println(entry.getKey());
-        }
-
-        String response = Game.scanner.nextLine();
-
-        if(response.equalsIgnoreCase("back")) {
-            return;
-        }
-
-        for(Map.Entry<Defense, Integer> entry : planet.getDefenses().entrySet()) {
-            Defense defense = entry.getKey();
-            if(response.equalsIgnoreCase(defense.toString())) {
-                System.out.println();
-                System.out.println(defense.toString());
-                System.out.println(defense.getDescription());
-                defense.printInfo();
-                System.out.println("Shipyard level required: " + defense.getLevelRequired());
-                System.out.println("You currently have " + planet.getDefenseCount(defense) + " " + defense.toString() + ".");
-                System.out.println("Would you like to build more " + defense.toString() + "?");
-                System.out.println("Yes | No");
-                System.out.println();
-                response = Game.scanner.nextLine();
-
-                if(response.equalsIgnoreCase("yes")) {
-                    defense.build(planet);
+                String response = Game.scanner.nextLine();
+                if(response.equalsIgnoreCase("back")) {
+                    return;
                 }
-                return;
-            }
-        }
-        System.out.println("Defense not found! Try again.");
-        promptBuildDefenses(planet);
-    }
+                for(Building building : buildings) {
+                    if(response.equalsIgnoreCase(building.toString())) {
+                        System.out.println();
+                        System.out.println("Current Level of Building: " + building.getLevel());
+                        printBuildingCost(building);
+                        System.out.println("Do you want to level up this building?");
+                        System.out.println("Yes | No");
+                        System.out.println();
+                        response = Game.scanner.nextLine();
 
-    public void printBuildingCost(Building building) {
-        if(building.getMetalCost() != 0) System.out.println("Metal Cost: " + building.getMetalCost());
-        if(building.getCrystalCost() != 0) System.out.println("Crystal Cost: " + building.getCrystalCost());
-        if(building.getDeuteriumCost() != 0) System.out.println("Deuterium Cost: " + building.getDeuteriumCost());
-    }
+                        if(response.equalsIgnoreCase("yes")) {
+                            building.levelUp();
+                        }
+                        return;
+                    }
+                }
+                System.out.println("Building not found!");
+                levelUp(planet);
+            }
+            public void promptBuildShips(Planet planet) {
+                System.out.println();
+                System.out.println("Which ship would you like to build?");
+                System.out.println("Type out the name of the ship for more information. | \"Back\" to go back.");
+                System.out.println();
+                for(Map.Entry<Ship, Integer> entry : planet.getShips().entrySet()) {
+                    System.out.println(entry.getKey());
+                }
+
+                String response = Game.scanner.nextLine();
+
+                if(response.equalsIgnoreCase("back")) {
+                    return;
+                }
+
+                for(Map.Entry<Ship, Integer> entry : planet.getShips().entrySet()) {
+                    Ship ship = entry.getKey();
+                    if(response.equalsIgnoreCase(ship.toString())) {
+                        System.out.println();
+                        System.out.println(ship.toString());
+                        System.out.println(ship.getDescription());
+                        ship.printInfo();
+                        System.out.println("Shipyard level required: " + ship.getLevelRequired());
+                        System.out.println("You currently have " + planet.getShipCount(ship) + " " + ship.toString() + ".");
+                        System.out.println("Would you like to build more " + ship.toString() + "?");
+                        System.out.println("Yes | No");
+                        System.out.println();
+                        response = Game.scanner.nextLine();
+
+                        if(response.equalsIgnoreCase("yes")) {
+                            ship.build(planet);
+                        }
+                        return;
+                    }
+                }
+                System.out.println("Ship not found! Try again.");
+                promptBuildShips(planet);
+            }
+            public void promptBuildDefenses(Planet planet) {
+                System.out.println();
+                System.out.println("Which defense would you like to build?");
+                System.out.println("Type out the name of the defense for more information. | \"Back\" to go back.");
+                System.out.println();
+                for(Map.Entry<Defense, Integer> entry : planet.getDefenses().entrySet()) {
+                    System.out.println(entry.getKey());
+                }
+
+                String response = Game.scanner.nextLine();
+
+                if(response.equalsIgnoreCase("back")) {
+                    return;
+                }
+
+                for(Map.Entry<Defense, Integer> entry : planet.getDefenses().entrySet()) {
+                    Defense defense = entry.getKey();
+                    if(response.equalsIgnoreCase(defense.toString())) {
+                        System.out.println();
+                        System.out.println(defense.toString());
+                        System.out.println(defense.getDescription());
+                        defense.printInfo();
+                        System.out.println("Shipyard level required: " + defense.getLevelRequired());
+                        System.out.println("You currently have " + planet.getDefenseCount(defense) + " " + defense.toString() + ".");
+                        System.out.println("Would you like to build more " + defense.toString() + "?");
+                        System.out.println("Yes | No");
+                        System.out.println();
+                        response = Game.scanner.nextLine();
+
+                        if(response.equalsIgnoreCase("yes")) {
+                            defense.build(planet);
+                        }
+                        return;
+                    }
+                }
+                System.out.println("Defense not found! Try again.");
+                promptBuildDefenses(planet);
+            }
+            public void printBuildingCost(Building building) {
+                if(building.getMetalCost() != 0) System.out.println("Metal Cost: " + building.getMetalCost());
+                if(building.getCrystalCost() != 0) System.out.println("Crystal Cost: " + building.getCrystalCost());
+                if(building.getDeuteriumCost() != 0) System.out.println("Deuterium Cost: " + building.getDeuteriumCost());
+            }
 
     public void promptAttack(Planet planet) { // TODO: Create
         System.out.println();
@@ -675,137 +672,133 @@ public class Empire { // Empire, along with all stats
         }
         System.out.println("Planet not found!");
     }
-
-    private void startAttack(Planet homePlanet, Planet enemyPlanet) {
-        if(this != Game.player) {
-            botStartAttack(homePlanet, enemyPlanet); // If bot
-            return;
-        }
-        System.out.println();
-        System.out.println("You are about to attack planet " + enemyPlanet.getFullInfo() + " belonging to " + enemyPlanet.getEmpire() + ".");
-        System.out.println("How many ships would you like to use to attack this planet?");
-        System.out.println();
-        Map<Ship, Integer> ships = homePlanet.getShips();
-        Map<Ship, Integer> fleet = new LinkedHashMap<>();
-        while(true) {
-            boolean found = false;
-
-            for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
-                if(entry.getValue() != 0) System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
-            }
-            System.out.println("Type out the name of the ship you want to attack with | \"Proceed\" to proceed to the next stage of the attack.");
-            String response = Game.scanner.nextLine();
-
-            if(response.equals("proceed")) break;
-
-            for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
-                if(response.equalsIgnoreCase(entry.getKey().getName())) {
-                    found = true;
-                    if(entry.getValue() == 0) {
-                        System.out.println("You don't have any " + entry.getKey().getName() + "!");
-                        break;
-                    }
-                    int amount;
-                    System.out.println();
-                    System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
-                    System.out.println("How many ships would you like to use?");
-                    System.out.println();
-                    try {
-                        amount = Integer.parseInt(Game.scanner.nextLine());
-                    } catch (Exception e) {
-                        System.out.println("ERROR: Invalid input!");
-                        break;
-                    }
-                    if(amount > entry.getValue()) {
-                        System.out.println("You do not have enough ships to complete this operation!");
-                        break;
-                    }
-                    if(amount < 1) {
-                        System.out.println("You must add 1 or more ships.");
-                        break;
-                    }
-                    fleet.put(entry.getKey(), amount);
+            private void startAttack(Planet homePlanet, Planet enemyPlanet) {
+                if(this != Game.player) {
+                    botStartAttack(homePlanet, enemyPlanet); // If bot
+                    return;
                 }
+                System.out.println();
+                System.out.println("You are about to attack planet " + enemyPlanet.getFullInfo() + " belonging to " + enemyPlanet.getEmpire() + ".");
+                System.out.println("How many ships would you like to use to attack this planet?");
+                System.out.println();
+                Map<Ship, Integer> ships = homePlanet.getShips();
+                Map<Ship, Integer> fleet = new LinkedHashMap<>();
+                while(true) {
+                    boolean found = false;
+
+                    for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
+                        if(entry.getValue() != 0) System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
+                    }
+                    System.out.println("Type out the name of the ship you want to attack with | \"Proceed\" to proceed to the next stage of the attack.");
+                    String response = Game.scanner.nextLine();
+
+                    if(response.equals("proceed")) break;
+
+                    for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
+                        if(response.equalsIgnoreCase(entry.getKey().getName())) {
+                            found = true;
+                            if(entry.getValue() == 0) {
+                                System.out.println("You don't have any " + entry.getKey().getName() + "!");
+                                break;
+                            }
+                            int amount;
+                            System.out.println();
+                            System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
+                            System.out.println("How many ships would you like to use?");
+                            System.out.println();
+                            try {
+                                amount = Integer.parseInt(Game.scanner.nextLine());
+                            } catch (Exception e) {
+                                System.out.println("ERROR: Invalid input!");
+                                break;
+                            }
+                            if(amount > entry.getValue()) {
+                                System.out.println("You do not have enough ships to complete this operation!");
+                                break;
+                            }
+                            if(amount < 1) {
+                                System.out.println("You must add 1 or more ships.");
+                                break;
+                            }
+                            fleet.put(entry.getKey(), amount);
+                        }
+                    }
+                    if(!found) {
+                        System.out.println("Ship not found! Try again.");
+                    }
+                }
+                int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
+                int flightTime = calcFlightTime(homePlanet, enemyPlanet, fleet);
+
+                if(deuteriumCost > homePlanet.getDeuterium()) {
+                    System.out.println();
+                    System.out.println("You do not have enough deuterium to complete this operation!");
+                    System.out.println("Your planet currently has " + homePlanet.getDeuterium() + " deuterium.");
+                    System.out.println("You need " + deuteriumCost + " deuterium to complete this operation.");
+                    System.out.println();
+                    return;
+                }
+                
+                System.out.println();
+                System.out.println("Your planet currently has " + homePlanet.getDeuterium() + " deuterium.");
+                System.out.println("You need " + deuteriumCost + " deuterium to complete this operation.");
+                System.out.println("It takes you " + flightTime + " days to complete this operation.");
+                System.out.println("Would you like to proceed? Yes | No");
+                System.out.println();
+
+                String response = Game.scanner.nextLine();
+
+                if(!response.equalsIgnoreCase("yes")) {
+                    return;
+                }
+
+                System.out.println("You are about to create a new attack.");
+                Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK)); // Makes a new attack
+                homePlanet.attackSubtract(deuteriumCost, fleet);
+                System.out.println("Attack successfully created!");
             }
-            if(!found) {
-                System.out.println("Ship not found! Try again.");
+            public void botStartAttack(Planet homePlanet, Planet enemyPlanet) {
+                Map<Ship, Integer> fleet = homePlanet.getShips();
+                int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
+                if(deuteriumCost > homePlanet.getDeuterium()) {
+                    homePlanet.resetGoalStatus();
+                    homePlanet.setDeuteriumGoal(deuteriumCost);
+                    // If not enough deuterium to attack, tries to get enough before attacking.
+                    homePlanet.setGoalAction(() -> this.botStartAttack(homePlanet, enemyPlanet));
+                    homePlanet.setActionType(ActionType.ATTACK);
+                    // Sets goal to attack
+                    return;
+                }
+                
+                Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK));
+                homePlanet.attackSubtract(deuteriumCost, fleet);
             }
-        }
-        int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
-        int flightTime = calcFlightTime(homePlanet, enemyPlanet, fleet);
-
-        if(deuteriumCost > homePlanet.getDeuterium()) {
-            System.out.println();
-            System.out.println("You do not have enough deuterium to complete this operation!");
-            System.out.println("Your planet currently has " + homePlanet.getDeuterium() + " deuterium.");
-            System.out.println("You need " + deuteriumCost + " deuterium to complete this operation.");
-            System.out.println();
-            return;
-        }
-        
-        System.out.println();
-        System.out.println("Your planet currently has " + homePlanet.getDeuterium() + " deuterium.");
-        System.out.println("You need " + deuteriumCost + " deuterium to complete this operation.");
-        System.out.println("It takes you " + flightTime + " days to complete this operation.");
-        System.out.println("Would you like to proceed? Yes | No");
-        System.out.println();
-
-        String response = Game.scanner.nextLine();
-
-        if(!response.equalsIgnoreCase("yes")) {
-            return;
-        }
-
-        System.out.println("You are about to create a new attack.");
-        Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK)); // Makes a new attack
-        homePlanet.attackSubtract(deuteriumCost, fleet);
-        System.out.println("Attack successfully created!");
-    }
-    
-    public void botStartAttack(Planet homePlanet, Planet enemyPlanet) {
-        Map<Ship, Integer> fleet = homePlanet.getShips();
-        int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
-        if(deuteriumCost > homePlanet.getDeuterium()) {
-            homePlanet.resetGoalStatus();
-            homePlanet.setDeuteriumGoal(deuteriumCost);
-            // If not enough deuterium to attack, tries to get enough before attacking.
-            homePlanet.setGoalAction(() -> this.botStartAttack(homePlanet, enemyPlanet));
-            homePlanet.setActionType(ActionType.ATTACK);
-            // Sets goal to attack
-            return;
-        }
-        
-        Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK));
-        homePlanet.attackSubtract(deuteriumCost, fleet);
-    }
-
-    public static int calcDeuteriumCost(Planet planet1, Planet planet2, Map<Ship, Integer> fleet) {
-        double totalCost = 0;
-        double distance = Coordinates.getDistance(planet1.getCoordinates(), planet2.getCoordinates());
-        for(Map.Entry<Ship, Integer> entry : fleet.entrySet()) {
-            Ship ship = entry.getKey();
-            int count = entry.getValue();
-            totalCost = totalCost + 60 * count + ship.getFuelMultiplier() * 25 * distance * count;
-        }
-        if(planet1.getEmpire() != Game.player) return (int) totalCost / 2;
-        return (int) totalCost;
-    }
-
-    public static int calcFlightTime(Planet planet1, Planet planet2, Map<Ship, Integer> fleet) {
-        double distance = Coordinates.getDistance(planet1.getCoordinates(), planet2.getCoordinates());
-        int totalShips = 0;
-        double totalSpeed = 0.0;
-        for(Map.Entry<Ship, Integer> entry : fleet.entrySet()) {
-            totalShips = totalShips + entry.getValue();
-            totalSpeed = totalSpeed + entry.getKey().getSpeedMultiplier() * entry.getValue();
-        }
-        if(totalShips == 0) {
-            System.out.println("ERROR: Division by 0 in calcFlightTime(). Adjusted to 1.");
-            totalShips = 1;
-        }
-        double averageSpeed = totalSpeed / totalShips;
-        return (int) ((averageSpeed * distance) / 100) + 1; // 2 Days minimum, 4 max | 50) + 2 |
-    }
+            public static int calcDeuteriumCost(Planet planet1, Planet planet2, Map<Ship, Integer> fleet) {
+                double totalCost = 0;
+                double distance = Coordinates.getDistance(planet1.getCoordinates(), planet2.getCoordinates());
+                for(Map.Entry<Ship, Integer> entry : fleet.entrySet()) {
+                    Ship ship = entry.getKey();
+                    int count = entry.getValue();
+                    totalCost = totalCost + 60 * count + ship.getFuelMultiplier() * 25 * distance * count;
+                }
+                if(planet1.getEmpire() != Game.player) return (int) totalCost / 2;
+                return (int) totalCost;
+            }
+            public static int calcFlightTime(Planet planet1, Planet planet2, Map<Ship, Integer> fleet) {
+                double distance = Coordinates.getDistance(planet1.getCoordinates(), planet2.getCoordinates());
+                int totalShips = 0;
+                double totalSpeed = 0.0;
+                for(Map.Entry<Ship, Integer> entry : fleet.entrySet()) {
+                    totalShips = totalShips + entry.getValue();
+                    totalSpeed = totalSpeed + entry.getKey().getSpeedMultiplier() * entry.getValue();
+                }
+                if(totalShips == 0) {
+                    System.out.println("ERROR: Division by 0 in calcFlightTime(). Adjusted to 1.");
+                    totalShips = 1;
+                }
+                double averageSpeed = totalSpeed / totalShips;
+                return (int) ((averageSpeed * distance) / 100) + 1; // 2 Days minimum, 4 max | 50) + 2 |
+            }
 
     public void showMap() {
         System.out.println();
@@ -875,11 +868,9 @@ public class Empire { // Empire, along with all stats
     public void addPlanet(Planet planet) {
         planets.add(planet);
     }
-
     public void remPlanet(Planet planet) {
         planets.remove(planet);
     }
-
     public List<Planet> getPlanets() {
         return planets;
     }

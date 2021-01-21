@@ -261,6 +261,7 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         plasmaCannon       .setLevelRequired(3); plasmaCannon       .setPower(3  );
         particleAccelerator.setLevelRequired(5); particleAccelerator.setPower(6.5);
         
+        // TODO: Set in constructor instead of static block: make variables final:
         missileCannon.setDescription("Cheap and efficient missile turrets");
         laserCannon.setDescription("Shoots powerful lasers that pierces ships.");
         plasmaCannon.setDescription("Superheated matter can melt through armor easily.");
@@ -282,6 +283,7 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     // private Building researchFacility; TODO: Add researching
     private Building shipyard ;
 
+    // TODO: Make all buildings static to conserve memory and make hashmap of building and level of buildings:
     private void initializeBuildings() {
         metalMine        = new Building("Metal Mine"       , this, 3000, 2250, 250, true);
         crystalMine      = new Building("Crystal Mine"     , this, 4000, 1500, 500, true);
@@ -310,6 +312,7 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         return buildings;
     }
 
+    // TODO: Stop from repeating 3 times. Maybe make buildings save efficiency stat
     public double enoughEnergy() {
         if(this.empire != Game.player) return 1;
         int energy = solarPanel.getEnergyOutput();
