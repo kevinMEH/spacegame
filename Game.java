@@ -49,13 +49,11 @@ public class Game { // Main game and cycle
             removeFromExpeditions();
             if(checkGameEnd()) break;
             player.checkAttacks();
-            if(checkGameEnd()) break;
             player.playerEmpireStartActions();
             if(checkGameEnd()) break;
             botEmpireStartActions();
             if(checkGameEnd()) break;
             checkCoordinatedAction();
-            if(checkGameEnd()) break;
             days++;
             incrementExpeditions();
         }

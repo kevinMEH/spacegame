@@ -84,64 +84,19 @@ public class Empire { // Empire, along with all stats
     public void botStartActions() {
         for(Planet planet : planets) {
             switch (planet.getStatus()) {
-                case DEFENSIVE -> defensiveAction(planet);
-                case ALERT -> alertAction(planet);
-                case OFFENSIVE -> offensiveAction(planet);
-                case DEVELOP -> developAction(planet);
-                case COORDINATED -> coordinatedAction(planet);
+                case ALERT       -> alert      (planet);
+                case DEFENSIVE   -> defensive  (planet);
+                case DEVELOP     -> develop    (planet);
+                case OFFENSIVE   -> offensive  (planet);
+                case COORDINATED -> coordinated(planet);
             }
             planet.executeDefaultActions();
         }
     }
     
-    public void defensiveAction(Planet planet) { // AI build defenses
-        int metalAmount = planet.getMetal();
-        int crystalAmount = planet.getCrystal();
-
-        if(planet.validAction() && planet.goalMet()
-        && planet.getActionType() == ActionType.OFFENSIVE) { // If planet goal is to build ship or defense, complete goal.
-            planet.execute();
-            planet.resetGoalStatus();
-        }
-        // TODO: Make better algorithm: Make build ships if defense is already good, all defenses if defense bad
-        // Build more if defenses bad, build less if good.
-        int availableMetal = (int) (metalAmount * 0.7); // Resources available for use
-        int availableCrystal = (int) (crystalAmount * 0.7);
-
-        int defenseMetal = (int) (0.5 * availableMetal); // Allocating specific amounts of metal for defenses
-        int defenseCrystal = (int) (0.5 * availableCrystal);
-        availableMetal = availableMetal - defenseMetal; // Rest of available metal will be used to make ships for counterattack
-        availableCrystal = availableCrystal - defenseCrystal;
-
-        List<Defense> defenses = new ArrayList<>(planet.getDefenses().keySet()); // List of defenses
-        for(int i = defenses.size() - 1; i >= 0; i--) { // Tries to build building from best to least
-            Defense defense = defenses.get(i);
-            int metalCost = defense.getMetalCost();
-            int crystalCost = defense.getCrystalCost();
-            while(enoughMaterialsDefense(defenseMetal, defenseCrystal, defense)) { // Tries to build defenses until it can't anymore.
-                defense.build(planet);
-                defenseMetal = defenseMetal - metalCost;
-                defenseCrystal = defenseCrystal - crystalCost;
-            }
-        }
-        availableMetal = availableMetal + defenseMetal;
-        availableCrystal = availableCrystal + defenseCrystal;
-
-        List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
-        for(int i = ships.size() - 1; i >= 0; i--) {
-            Ship ship = ships.get(i);
-            int metalCost = ship.getMetalCost();
-            int crystalCost = ship.getCrystalCost();
-            while(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
-                ship.build(planet);
-                availableMetal = availableMetal - metalCost;
-                availableCrystal = availableCrystal - crystalCost;
-            }
-        }
-    }
-    public void alertAction(Planet planet) { // Mostly develop, build ships and defenses
+    public void alert(Planet planet) { // Mostly develop, build ships and defenses
         if(Math.random() < 0.75) { // TODO: Make sep algorithm. Too lazy.
-            developAction(planet);
+            develop(planet);
         } else {
             int metalAmount = planet.getMetal();
             int crystalAmount = planet.getCrystal();
@@ -186,7 +141,94 @@ public class Empire { // Empire, along with all stats
             }
         }
     }
-    public void offensiveAction(Planet planet) {
+    public void defensive(Planet planet) { // AI build defenses
+        int metalAmount = planet.getMetal();
+        int crystalAmount = planet.getCrystal();
+
+        if(planet.validAction() && planet.goalMet()
+        && planet.getActionType() == ActionType.OFFENSIVE) { // If planet goal is to build ship or defense, complete goal.
+            planet.execute();
+            planet.resetGoalStatus();
+        }
+        // TODO: Make better algorithm: Make build ships if defense is already good, all defenses if defense bad
+        // Build more if defenses bad, build less if good.
+        int availableMetal = (int) (metalAmount * 0.7); // Resources available for use
+        int availableCrystal = (int) (crystalAmount * 0.7);
+
+        int defenseMetal = (int) (0.5 * availableMetal); // Allocating specific amounts of metal for defenses
+        int defenseCrystal = (int) (0.5 * availableCrystal);
+        availableMetal = availableMetal - defenseMetal; // Rest of available metal will be used to make ships for counterattack
+        availableCrystal = availableCrystal - defenseCrystal;
+
+        List<Defense> defenses = new ArrayList<>(planet.getDefenses().keySet()); // List of defenses
+        for(int i = defenses.size() - 1; i >= 0; i--) { // Tries to build building from best to least
+            Defense defense = defenses.get(i);
+            int metalCost = defense.getMetalCost();
+            int crystalCost = defense.getCrystalCost();
+            while(enoughMaterialsDefense(defenseMetal, defenseCrystal, defense)) { // Tries to build defenses until it can't anymore.
+                defense.build(planet);
+                defenseMetal = defenseMetal - metalCost;
+                defenseCrystal = defenseCrystal - crystalCost;
+            }
+        }
+        availableMetal = availableMetal + defenseMetal;
+        availableCrystal = availableCrystal + defenseCrystal;
+
+        List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
+        for(int i = ships.size() - 1; i >= 0; i--) {
+            Ship ship = ships.get(i);
+            int metalCost = ship.getMetalCost();
+            int crystalCost = ship.getCrystalCost();
+            while(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
+                ship.build(planet);
+                availableMetal = availableMetal - metalCost;
+                availableCrystal = availableCrystal - crystalCost;
+            }
+        }
+    }
+    enum FocusBuilding {
+        METAL,
+        CRYSTAL,
+        DEUTERIUM,
+    }
+    public void develop(Planet planet) {
+        if(planet.validAction() && planet.goalMet()) {
+            planet.execute();
+            planet.resetGoalStatus();
+        }
+        FocusBuilding focusBuilding = FocusBuilding.METAL;
+        if(planet.getDeuteriumMineLevel() < planet.getCrystalMineLevel() 
+        && planet.getDeuteriumMineLevel() < planet.getMetalMineLevel())
+            focusBuilding = FocusBuilding.DEUTERIUM;
+        else if(planet.getCrystalMineLevel() < planet.getMetalMineLevel()
+        || planet.getCrystalMineLevel() < planet.getDeuteriumMineLevel())
+            focusBuilding = FocusBuilding.CRYSTAL;
+        if(planet.getMetalMineLevel() < planet.getCrystalMineLevel()
+        || planet.getMetalMineLevel() < planet.getDeuteriumMineLevel())
+            focusBuilding = FocusBuilding.METAL;
+        
+        Building targetBuilding;
+        switch (focusBuilding) {
+            case METAL -> targetBuilding = planet.getMetalMine();
+            case CRYSTAL -> targetBuilding = planet.getCrystalMine();
+            case DEUTERIUM -> targetBuilding = planet.getDeuteriumMine();
+            default -> {
+                System.out.println("ERROR: focusBuilding not set! developAction() + " + this);
+                targetBuilding = planet.getMetalMine();
+            }
+        }
+        if(targetBuilding.enoughMaterials()) {
+            targetBuilding.levelUp();
+        } else { // Set goal to upgrade building
+            planet.resetGoalStatus();
+            planet.setMetalGoal(targetBuilding.getMetalCost());
+            planet.setCrystalGoal(targetBuilding.getCrystalCost());
+            planet.setDeuteriumGoal(targetBuilding.getDeuteriumCost());
+            planet.setGoalAction(targetBuilding::levelUp);
+            planet.setActionType(ActionType.DEVELOP);
+        }
+    }
+    public void offensive(Planet planet) {
         int availableMetal = planet.getMetal();
         int availableCrystal = planet.getCrystal();
         
@@ -246,49 +288,7 @@ public class Empire { // Empire, along with all stats
                 }
                 return weakestPlanet;
             }
-    enum FocusBuilding {
-        METAL,
-        CRYSTAL,
-        DEUTERIUM,
-    }
-    public void developAction(Planet planet) {
-        if(planet.validAction() && planet.goalMet()) {
-            planet.execute();
-            planet.resetGoalStatus();
-        }
-        FocusBuilding focusBuilding = FocusBuilding.METAL;
-        if(planet.getDeuteriumMineLevel() < planet.getCrystalMineLevel() 
-        && planet.getDeuteriumMineLevel() < planet.getMetalMineLevel())
-            focusBuilding = FocusBuilding.DEUTERIUM;
-        else if(planet.getCrystalMineLevel() < planet.getMetalMineLevel()
-        || planet.getCrystalMineLevel() < planet.getDeuteriumMineLevel())
-            focusBuilding = FocusBuilding.CRYSTAL;
-        if(planet.getMetalMineLevel() < planet.getCrystalMineLevel()
-        || planet.getMetalMineLevel() < planet.getDeuteriumMineLevel())
-            focusBuilding = FocusBuilding.METAL;
-        
-        Building targetBuilding;
-        switch (focusBuilding) {
-            case METAL -> targetBuilding = planet.getMetalMine();
-            case CRYSTAL -> targetBuilding = planet.getCrystalMine();
-            case DEUTERIUM -> targetBuilding = planet.getDeuteriumMine();
-            default -> {
-                System.out.println("ERROR: focusBuilding not set! developAction() + " + this);
-                targetBuilding = planet.getMetalMine();
-            }
-        }
-        if(targetBuilding.enoughMaterials()) {
-            targetBuilding.levelUp();
-        } else { // Set goal to upgrade building
-            planet.resetGoalStatus();
-            planet.setMetalGoal(targetBuilding.getMetalCost());
-            planet.setCrystalGoal(targetBuilding.getCrystalCost());
-            planet.setDeuteriumGoal(targetBuilding.getDeuteriumCost());
-            planet.setGoalAction(targetBuilding::levelUp);
-            planet.setActionType(ActionType.DEVELOP);
-        }
-    }
-    public void coordinatedAction(Planet planet) {
+    public void coordinated(Planet planet) {
         int availableMetal = planet.getMetal();
         int availableCrystal = planet.getCrystal();
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
