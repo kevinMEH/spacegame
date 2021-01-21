@@ -22,6 +22,8 @@ The goal of the game is to manage your resources and defeat other empires. <br>
 
 The goals of Space Game is relatively simple. You manage your resources, fight for a party and try and defeat the opponents. However, the complexity lies in the different approaches that one can choose to take. I will not list any here, just basic information needed to play the game.
 
+---
+
 ### **Resources**
 
 **Metal** is an essential resource that is the building blocks of your empire. Anything from buildings to armored ships will require large amounts of metal.
