@@ -8,8 +8,6 @@ The goal of the game is to manage your resources and defeat other empires. <br>
 
 <!-- **DISCLAIMER:** This game is made entirely from the author's imagination and through research. Any references or correlation with other games or projects are entirely and purely coincidental. -->
 
----
-
 ## **Table of Contents**
 
 - [How To Play](#how-to-play)
@@ -20,13 +18,9 @@ The goal of the game is to manage your resources and defeat other empires. <br>
   - [Algorithms](#algorithms)
 - [The End](#the-end)
 
----
-
 ## **How To Play**
 
 The goals of Space Game is relatively simple. You manage your resources, fight for a party and try and defeat the opponents. However, the complexity lies in the different approaches that one can choose to take. I will not list any here, just basic information needed to play the game.
-
----
 
 ### **Resources**
 
@@ -49,8 +43,6 @@ To win the game, you must attack other planets. Build different types of ships t
 ### **Defend Your Empire**
 
 Build defenses to defend your planet against enemies. Defenses are more effective when defending than ships, but are local to your planet and cannot be used for attacking.
-
----
 
 ## **Bot Documentation**
 
@@ -86,8 +78,6 @@ While every empire has a primary target, the needs of each planet is different a
 
 >
     The status of the planet determines the planet's next moves.
-
----
 
 ### **Status Checks**
 
@@ -155,4 +145,5 @@ The actions of the bot depends on 3 algorithms that represent its actions. (Ther
 
 ## **The End**
 
+This game was made for a school project. This game is made for educational purposes.
 I hope you enjoyed playing this game or exploring the code. Thanks for viewing!
