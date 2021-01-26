@@ -61,7 +61,7 @@ public class Expedition {
         int rounds = 1;
 
         while(expeditionStatus == ExpeditionStatus.ONGOING) {
-            Game.sleep(4000);
+            Game.typewriter(8000);
             System.out.println("Round " + rounds);
             int attackerTotalDamage = 0;
             int attackerAntiDefenseDamage = 0; // Extra damage against defenses
@@ -376,6 +376,7 @@ public class Expedition {
             case ATTACK -> attackSequence();
             case COLONIZATION -> colonizationSequence();
             case PERMTRANSPORT, TRANSPORT -> transportSequence();
+            default -> System.out.println("ERROR: Default reached in expeditionSequence.");
         }
     }
 
