@@ -3,7 +3,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 enum Affiliation {
     ALIEN {@Override public String toString() {return "Alien";}},
@@ -380,22 +379,20 @@ public class Empire { // Empire, along with all stats
             }
         }
     }
-    
-    static Random random = new Random();
 
     public void newTarget() { // Selects new primary target.
-        if((random.nextInt(15) == 0 && getDaysSinceLastAttack() > 15)
+        if((Game.random.nextInt(15) == 0 && getDaysSinceLastAttack() > 15)
         || target == null || target.checkDestroyed()) {
             switch (affiliation) {
-                case ALIEN -> target = Game.humans.get(random.nextInt(Game.humans.size()));
-                case HUMAN -> target = Game.aliens.get(random.nextInt(Game.aliens.size()));
+                case ALIEN -> target = Game.humans.get(Game.random.nextInt(Game.humans.size()));
+                case HUMAN -> target = Game.aliens.get(Game.random.nextInt(Game.aliens.size()));
             }
         }
     }
     public void forceNewTargetAndCheckGameEnd() {
         switch (affiliation) {
-            case ALIEN -> target = Game.humans.get(random.nextInt(Game.humans.size()));
-            case HUMAN -> target = Game.aliens.get(random.nextInt(Game.humans.size()));
+            case ALIEN -> target = Game.humans.get(Game.random.nextInt(Game.humans.size()));
+            case HUMAN -> target = Game.aliens.get(Game.random.nextInt(Game.humans.size()));
         }
     }
 
@@ -520,6 +517,7 @@ public class Empire { // Empire, along with all stats
                 for(Building building : buildings) {
                     System.out.println(building + " at level: " + building.getLevel());
                 }
+                System.out.println();
                 String response = Game.scanner.nextLine();
                 if(response.equalsIgnoreCase("back")) {
                     return;
@@ -551,9 +549,8 @@ public class Empire { // Empire, along with all stats
                 for(Map.Entry<Ship, Integer> entry : planet.getShips().entrySet()) {
                     System.out.println(entry.getKey());
                 }
-
+                System.out.println();
                 String response = Game.scanner.nextLine();
-
                 if(response.equalsIgnoreCase("back")) {
                     return;
                 }
@@ -567,14 +564,9 @@ public class Empire { // Empire, along with all stats
                         ship.printInfo();
                         System.out.println("Shipyard level required: " + ship.getLevelRequired());
                         System.out.println("You currently have " + planet.getShipCount(ship) + " " + ship.toString() + ".");
-                        System.out.println("Would you like to build more " + ship.toString() + "?");
-                        System.out.println("Yes | No");
                         System.out.println();
-                        response = Game.scanner.nextLine();
-
-                        if(response.equalsIgnoreCase("yes")) {
-                            ship.build(planet);
-                        }
+                        ship.build(planet);
+                        System.out.println();
                         return;
                     }
                 }
@@ -589,9 +581,8 @@ public class Empire { // Empire, along with all stats
                 for(Map.Entry<Defense, Integer> entry : planet.getDefenses().entrySet()) {
                     System.out.println(entry.getKey());
                 }
-
+                System.out.println();
                 String response = Game.scanner.nextLine();
-
                 if(response.equalsIgnoreCase("back")) {
                     return;
                 }
@@ -605,14 +596,9 @@ public class Empire { // Empire, along with all stats
                         defense.printInfo();
                         System.out.println("Shipyard level required: " + defense.getLevelRequired());
                         System.out.println("You currently have " + planet.getDefenseCount(defense) + " " + defense.toString() + ".");
-                        System.out.println("Would you like to build more " + defense.toString() + "?");
-                        System.out.println("Yes | No");
                         System.out.println();
-                        response = Game.scanner.nextLine();
-
-                        if(response.equalsIgnoreCase("yes")) {
-                            defense.build(planet);
-                        }
+                        defense.build(planet);
+                        System.out.println();
                         return;
                     }
                 }
@@ -690,6 +676,7 @@ public class Empire { // Empire, along with all stats
                         if(entry.getValue() != 0) System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
                     }
                     System.out.println("Type out the name of the ship you want to attack with | \"Proceed\" to proceed to the next stage of the attack.");
+                    System.out.println();
                     String response = Game.scanner.nextLine();
 
                     if(response.equals("proceed")) break;
@@ -806,6 +793,7 @@ public class Empire { // Empire, along with all stats
         System.out.println("Aliens | Humans | All");
         System.out.println();
         String response = Game.scanner.nextLine();
+        System.out.println();
 
         if(response.equalsIgnoreCase("aliens") || response.equalsIgnoreCase("alien")) {
             System.out.println("aliens:");

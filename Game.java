@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Game { // Main game and cycle
@@ -10,6 +11,9 @@ public class Game { // Main game and cycle
         FAILURE,
     }
     
+    public static final Scanner scanner = new Scanner(System.in);
+    public static final Random random = new Random();
+    
     static GameStatus gameStatus = GameStatus.ONGOING;
 
     static BlackHole blackHole;
@@ -17,8 +21,8 @@ public class Game { // Main game and cycle
     static List<Empire> aliens = new ArrayList<>();
     static List<Empire> humans = new ArrayList<>();
     
-    static int humanSystem = (int) (Math.random() * 9); // Default system they will appear in
-    static int alienSystem = (int) (Math.random() * 9);
+    static int humanSystem = random.nextInt(9); // Default system they will appear in
+    static int alienSystem = random.nextInt(9);
     
     static List<Expedition> expeditions = new ArrayList<>();
     static List<Expedition> expeditionsToBeRemoved = new ArrayList<>();
@@ -31,12 +35,11 @@ public class Game { // Main game and cycle
     static Empire player;
     
     static int days = 0;
-    
-    public static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) { // TODO: Main game
+    public static void main(String[] args) {
         printBackstory();
-        while(alienSystem == humanSystem) {alienSystem = (int) (Math.random() * 9);} // See if default indices valid
+        promptTutorial();
+        while(alienSystem == humanSystem) {alienSystem = Game.random.nextInt(9);} // See if default indices valid
         generate(); // Generates planets
         initializeEmpires();
         for(Empire empire : aliens) empire.forceNewTargetAndCheckGameEnd();
@@ -65,17 +68,13 @@ public class Game { // Main game and cycle
         System.out.println("Welcome to Space Game! Your goal is to conquer all of your enemies and become the most powerful empire in the galaxy.");
         int response;
         while(true) {
-            // try {
-                System.out.println("How many bots would you like to fight against? Recommended: 3, Max: 8");
-                response = Integer.parseInt(scanner.nextLine());
-                if(response > 8 || response < 1) {
-                    System.out.println("Invalid number! Number must be greater than 1 and less than or equal to 8.");
-                    continue;
-                }
-                break;
-            // } catch (InputMismatchException e) {
-            //     System.out.println("ERROR: Please enter a valid number!");
-            // }
+            System.out.println("How many bots would you like to fight against? Recommended: 3, Max: 8");
+            response = Integer.parseInt(scanner.nextLine());
+            if(response > 8 || response < 1) {
+                System.out.println("Invalid number! Number must be greater than 1 and less than or equal to 8.");
+                continue;
+            }
+            break;
         }
         for(int i = aliens.size(); i < response; i++) {
             new Empire(Affiliation.ALIEN);
@@ -131,9 +130,9 @@ public class Game { // Main game and cycle
     }
     
     public static void checkCoordinatedAction() {
-        if((int) (10 * Math.random()) == 0) {
-            Empire human = Game.humans.get(Empire.random.nextInt(Game.humans.size()));
-            Empire alien = Game.aliens.get(Empire.random.nextInt(Game.aliens.size()));
+        if(Game.random.nextInt(10) == 0) {
+            Empire human = Game.humans.get(Game.random.nextInt(Game.humans.size()));
+            Empire alien = Game.aliens.get(Game.random.nextInt(Game.aliens.size()));
             for(Empire empire : aliens) {
                 empire.setCoordinatedTarget(human);
             }
@@ -155,11 +154,11 @@ public class Game { // Main game and cycle
             }
         }
         if(gameStatus == GameStatus.FAILURE) {
-            System.out.println("All of your planets were destroyed! You lost...");
+            typewriter("All of your planets were destroyed! You lost...");
             return true;
         }
         if(gameStatus == GameStatus.SUCCESS) {
-            System.out.println("You won! You now rule the galaxy.");
+            typewriter("You won! You now rule the galaxy.");
             return true;
         }
         // If game ongoing do nothing...
@@ -173,27 +172,68 @@ public class Game { // Main game and cycle
     }
     
     public static void printBackstory() {
-        System.out.println("The year is 2166. Humanity has finally put aside their differences in race, gender, class and other conflicts.");
-        sleep(1000);
-        System.out.println("However, big companies have polluted the Earth beyond livable. The average life expectancy is only 34.");
-        sleep(1000);
-        System.out.println("Most people die a horrible death of poisoning, lung cancer and other cancers of the body.");
-        sleep(1000);
-        System.out.println("The newly emerged World Socialist Union has finally developed rocket and colonization technology.");
-        sleep(1000);
-        System.out.println("Humanity finally resettled on another planet, in another solar system. However, there is a problem.");
-        sleep(1000);
-        System.out.println("Hostile aliens have sensed the presence of humans and they are not happy.");
-        sleep(1000);
-        System.out.println("Weary of the human tendency to pollute their planet and take over other countries, the aliens declared war on the humans.");
-        sleep(1000);
-        System.out.println("Your job: defeat the other side. No other option is available. The lives of billions of lives lies on your hands commander.");
-        System.out.println();
+        typewriter("The year is 2166. Humanity has finally put aside their differences in race, gender, class and other conflicts.");
+        typewriter("However, big companies have polluted the Earth beyond livable. The average life expectancy is only 34.");
+        typewriter("Most people die a horrible death of poisoning, lung cancer and other cancers of the body.");
+        typewriter("The newly emerged World Socialist Union has finally developed rocket and colonization technology.");
+        typewriter("Humanity finally resettled on another planet, in another solar system. However, there is a problem.");
+        typewriter("Hostile aliens have sensed the presence of humans and they are not happy.");
+        typewriter("Weary of the human tendency to pollute their planet and take over other countries, the aliens declared war on the humans.");
+        typewriter("Your job: defeat the other side. No other option is available. The lives of billions of lives lies on your hands commander.");
+        typewriter();
+    }
+    
+    public static void promptTutorial() {
+        typewriter("Would you like to take a look at the tutorial?");
+        String response = scanner.nextLine();
+        if(response.equalsIgnoreCase("yes")) {
+            typewriter("There are 3 basic resources in Space Game: Metal, Crystal, and Deuterium.");
+            typewriter("Metal is used for almost everything: from construction of building to armored ships. Metal is responsible for the structural integrity of everything you build.");
+            typewriter("Crystal is used for building circuits and weaponry. The most powerful weapons are made from large amounts of crystal.");
+            typewriter("Deuterium is the fuel of the universe. Clean and efficient, without deuterium you cannot launch attacks with your ships.");
+            typewriter();
+            typewriter("You have 3 types of mines, Metal Mines, Crystal Mines, Deuterium Mines, each producing their respective resource. Level up these buildings to produce more resources.");
+            typewriter("However, when leveling up your buildings, be aware of the energy consumption of the buildings. Upgrade your solar panels to power your mines. Efficiency of your mines are exponentially decreased without enough energy.");
+            typewriter();
+            typewriter("In order to win the game, you must defeat all your enemies. Check your map by typing \"map\" in the action selection menu to see the locations of you, your allies and your enemies.");
+            typewriter("In order to attack your enemies, you need to build ships. There are many different types of ships that you can build, each different from the other. Some ships can deal extra damage against defenses, some ships can deal extra damage against other ships.");
+            typewriter("Defend your planet by building ships and defenses. Ships are less effective when defending.");
+            typewriter("To build different types of ships and defenses, you must level up your shipyard. You can check the level that your ships and defenses require by typing its name in the build action menu.");
+            typewriter();
+            typewriter("Thats all there is to the game! The game is relatively simple, but the complexity lies in all the different approaches that you can choose to take.");
+            typewriter("The bots in the game, both allies and enemies are very smart. You have a very real chance of losing. Have fun!");
+            typewriter();
+        }
     }
 
-    public static void sleep(int milliseconds) {
+    public static void typewriter(String sentence) { //Typewriter animation effect
+        for(int i = 0; i < sentence.length(); i++) {
+            System.out.print(sentence.charAt(i));
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
+                Thread.currentThread().interrupt(); //Interrupts thread if its doing something else.
+            }
+        }
+        System.out.println();
         try {
-            Thread.sleep(milliseconds);
+            Thread.sleep(400); //Sleeps for 400 milliseconds afterwards.
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+    public static void typewriter() { //Line break and wait
+        System.out.println();
+        try {
+            Thread.sleep(400); //Sleeps for 400 milliseconds afterwards.
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+    public static void typewriter(int sleep) { //Line break and wait
+        System.out.println();
+        try {
+            Thread.sleep(sleep); //Sleeps for 400 milliseconds afterwards.
         } catch (Exception e) {
             Thread.currentThread().interrupt();
         }
