@@ -202,15 +202,15 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         unminedDeuterium = (int) (unminedDeuterium + unminedDeuterium * Math.random());
     }
 
-    public static Ship lightFighters    = new Ship("Light Fighters"   , 4000 , 3000 , 2000 , 1000 , 1     , 1.5);
-    public static Ship smallCargoShips  = new Ship("Small Cargo Ships", 6000 , 1000 , 3000 , 0    , 10000      );
-    public static Ship heavyFighters    = new Ship("Heavy Fighters"   , 8000 , 6500 , 4000 , 2500 , 1.2  , 0.8 );
-    public static Ship destroyers       = new Ship("Destroyers"       , 10000, 12000, 5000 , 5500 , 1.3  , 0.9 );
-    public static Ship tanks            = new Ship("Tanks"            , 15000, 6000 , 8000 , 2250 , 1.7  , 0.4 );
-    public static Ship largeCargoShips  = new Ship("Large Cargo Ships", 18000, 1000 , 6000 , 0    , 40000      );
-    public static Ship hijackers        = new Ship("Hijackers"        , 4000 , 10000, 1000 , 6000 , 1.5  , 2.5 );
-    public static Ship missileLaunchers = new Ship("Missile Launchers", 25000, 20000, 15000, 13000, 1.8  , 0.6 );
-    public static Ship battleships      = new Ship("Battleships"      , 50000, 40000, 30000, 28000, 2.7  , 0.4 );
+    public static final Ship lightFighters    = new Ship("Light Fighters"   , 4000 , 3000 , 2000 , 1000 , 1     , 1.5);
+    public static final Ship smallCargoShips  = new Ship("Small Cargo Ships", 6000 , 1000 , 3000 , 0    , 10000      );
+    public static final Ship heavyFighters    = new Ship("Heavy Fighters"   , 8000 , 6500 , 4000 , 2500 , 1.2  , 0.8 );
+    public static final Ship destroyers       = new Ship("Destroyers"       , 10000, 12000, 5000 , 5500 , 1.3  , 0.9 );
+    public static final Ship tanks            = new Ship("Tanks"            , 15000, 6000 , 8000 , 2250 , 1.7  , 0.4 );
+    public static final Ship largeCargoShips  = new Ship("Large Cargo Ships", 18000, 1000 , 6000 , 0    , 40000      );
+    public static final Ship hijackers        = new Ship("Hijackers"        , 4000 , 10000, 1000 , 6000 , 1.5  , 2.5 );
+    public static final Ship missileLaunchers = new Ship("Missile Launchers", 25000, 20000, 15000, 13000, 1.8  , 0.6 );
+    public static final Ship battleships      = new Ship("Battleships"      , 50000, 40000, 30000, 28000, 2.7  , 0.4 );
     static { // Initialize attributes for ships
         destroyers.setMultiplier(1, 1.4);
         hijackers.setMultiplier(1.7, 1);
@@ -251,10 +251,10 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         ships.put(battleships, 0);
     }
 
-    public static Defense missileCannon = new Defense("Missile Cannon", 2000, 1000, 900, 400);
-    public static Defense laserCannon = new Defense("Laser Cannon", 3000, 2000, 1500, 900);
-    public static Defense plasmaCannon = new Defense("Plasma Cannon", 5000, 4000, 2800, 1900);
-    public static Defense particleAccelerator = new Defense("Particle Accelerator", 10000, 8000, 5600, 4100);
+    public static final Defense missileCannon = new Defense("Missile Cannon", 2000, 1000, 900, 400);
+    public static final Defense laserCannon = new Defense("Laser Cannon", 3000, 2000, 1500, 900);
+    public static final Defense plasmaCannon = new Defense("Plasma Cannon", 5000, 4000, 2800, 1900);
+    public static final Defense particleAccelerator = new Defense("Particle Accelerator", 10000, 8000, 5600, 4100);
     static {
         missileCannon      .setLevelRequired(1); missileCannon      .setPower(1  );
         laserCannon        .setLevelRequired(2); laserCannon        .setPower(1.5);
