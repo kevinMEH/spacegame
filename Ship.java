@@ -64,13 +64,12 @@ public class Ship {
             System.out.println("Level required to build " + name +": " + this.getLevelRequired());
             return;
         }
-        System.out.println("How many " + name + " would you like to build?");
+        System.out.println("How many " + name + " would you like to build? Type anything other than a number to exit.");
         printCost();
         int amount;
         try {
             amount = Integer.parseInt(Game.scanner.nextLine());
         } catch (Exception e) {
-            System.out.println("Invalid number!");
             return;
         }
         if(amount < 1) {
