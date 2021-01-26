@@ -26,7 +26,7 @@ public class BlackHole extends Coordinates { // Our galaxy is centered around a 
         }
     }
     public Star getRandomStar() {
-        int random = (int) (Math.random() * stars.length);
+        int random = Game.random.nextInt(stars.length);
         return stars[random];
     }
 
