@@ -65,7 +65,6 @@ public class Ship {
             return;
         }
         System.out.println("How many " + name + " would you like to build? Type anything other than a number to exit.");
-        printCost();
         int amount;
         try {
             amount = Integer.parseInt(Game.scanner.nextLine());
