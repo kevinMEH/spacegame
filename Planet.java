@@ -65,9 +65,15 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     public interface Action {void execute();}
     public void execute() {goalAction.execute();}
     public Action getGoalAction() {return goalAction;}
-    public void setGoalAction(Action action) {goalAction = action;}
     public ActionType getActionType() {return actionType;}
-    public void setActionType(ActionType actionType) {this.actionType = actionType;}
+    public void setGoal(Action goalAction, ActionType actionType, 
+    int metalGoal, int crystalGoal, int deuteriumGoal) {
+        this.goalAction = goalAction;
+        this.actionType = actionType;
+        this.metalGoal = metalGoal;
+        this.crystalGoal = crystalGoal;
+        this.deuteriumGoal = deuteriumGoal;
+    }
     
     public void resetGoalStatus() {
         metalGoal = 0;
@@ -110,13 +116,13 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     // IMPORTANT: Make sure to make the planet closer or further away according to the index that the planet is at.
     // Should be relatively simple to do, Math.random() * 11/ 10 etc.
     
-    public void initiate() {
+    public void initiate() { // TODO: Delete this and move to constructor
         setTemperature(this.planetIndex);
         setBaseMaterialValues();
         initiated = true;
     }
 
-    public void colonize(Empire empire) { // Sep colonize method to save memory TODO: Add colonization
+    public void colonize(Empire empire) { // TODO: Remove this TODO: Add colonization
         if(!initiated) initiate();
         this.empire = empire;
         status = Status.DEVELOP;
@@ -135,7 +141,7 @@ public class Planet extends Coordinates { //Individual planet, resource amount
             name = Game.scanner.nextLine();
         }
     }
-    public void colonize(Empire empire, boolean firstRun) {
+    public void colonize(Empire empire, boolean firstRun) { // TODO: Remove this
         if(!initiated) initiate();
         this.empire = empire;
         status = Status.DEVELOP;
@@ -289,7 +295,6 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         crystalMine      = new Building("Crystal Mine"     , this, 4000, 1500, 500, true);
         deuteriumMine    = new Building("Deuterium Mine"   , this, 3500, 2000, 750, true);
         solarPanel       = new Building("Solar Panel"      , this, 3500, 2500, 0   );
-        // researchFacility = new Building("Research Facility", this, 6000, 4500, 2000);
         shipyard         = new Building("Shipyard"         , this, 4000, 2000, 0   );
         buildings = Arrays.asList(
             metalMine,
@@ -383,8 +388,5 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     public int getMetalGoal() {return metalGoal;}
     public int getCrystalGoal() {return crystalGoal;}
     public int getDeuteriumGoal() {return deuteriumGoal;}
-    public void setMetalGoal(int goal) {metalGoal = goal;}
-    public void setCrystalGoal(int goal) {crystalGoal = goal;}
-    public void setDeuteriumGoal(int goal) {deuteriumGoal = goal;}
 
 }
