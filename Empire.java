@@ -220,11 +220,12 @@ public class Empire { // Empire, along with all stats
             targetBuilding.levelUp();
         } else { // Set goal to upgrade building
             planet.resetGoalStatus();
-            planet.setMetalGoal(targetBuilding.getMetalCost());
-            planet.setCrystalGoal(targetBuilding.getCrystalCost());
-            planet.setDeuteriumGoal(targetBuilding.getDeuteriumCost());
-            planet.setGoalAction(targetBuilding::levelUp);
-            planet.setActionType(ActionType.DEVELOP);
+            planet.setGoal(
+                targetBuilding::levelUp, ActionType.DEVELOP, 
+                targetBuilding.getMetalCost(), 
+                targetBuilding.getCrystalCost(), 
+                targetBuilding.getDeuteriumCost()
+            );
         }
     }
     public void offensive(Planet planet) {
@@ -249,7 +250,7 @@ public class Empire { // Empire, along with all stats
         // Make bot form smart formations once attack formations is in effect.
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
         List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
-        while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3) {
+        while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3 + 25) {
             for(int i = ships.size() - 1; i >= 0; i--) {
                 Ship ship = ships.get(i);
                 if(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
@@ -263,7 +264,7 @@ public class Empire { // Empire, along with all stats
             || availableCrystal < Planet.lightFighters.getCrystalCost()) // If can't build anymore
                 break;
         }
-        if(calcOffensivePower(planet) > enemyDefensivePower * 1.3) { // Start attack if confident enough
+        if(calcOffensivePower(planet) - 1 > enemyDefensivePower * 1.3 + 25 && hasShips(planet)) { // Start attack if confident enough
             startAttack(planet, findWeakestDefensivePlanet(target)); 
             // Starts an attack on the weakest planet.
             // If deuterium is not enough, deuterium goal will be set.
@@ -293,7 +294,7 @@ public class Empire { // Empire, along with all stats
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
         List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
         // TODO: Better build algorithm:
-        while(calcOffensivePower(planet) < enemyDefensivePower * 1.1) {
+        while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3 + 25) {
             for(int i = ships.size() - 1; i >= 0; i--) {
                 Ship ship = ships.get(i);
                 if(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
@@ -307,7 +308,15 @@ public class Empire { // Empire, along with all stats
             || availableCrystal < Planet.lightFighters.getCrystalCost()) // If can't build anymore
                 break;
         }
-        startAttack(planet, findWeakestDefensivePlanet(coordinatedTarget)); 
+        if(hasShips(planet)) startAttack(planet, findWeakestDefensivePlanet(coordinatedTarget)); 
+    }
+    
+    public boolean hasShips(Planet planet) {
+        Map<Ship, Integer> ships = planet.getShips();
+        for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
+            if(entry.getValue() != 0 && entry.getKey().getAttack() != 0) return true;
+        }
+        return false;
     }
     
     public boolean enoughMaterialsAndNotCargo(int availableMetal, int availableCrystal, Ship ship) {
@@ -658,108 +667,112 @@ public class Empire { // Empire, along with all stats
         }
         System.out.println("Planet not found!");
     }
-            private void startAttack(Planet homePlanet, Planet enemyPlanet) {
-                if(this != Game.player) {
-                    botStartAttack(homePlanet, enemyPlanet); // If bot
-                    return;
-                }
-                System.out.println();
-                System.out.println("You are about to attack planet " + enemyPlanet.getFullInfo() + " belonging to " + enemyPlanet.getEmpire() + ".");
-                System.out.println("How many ships would you like to use to attack this planet?");
-                System.out.println();
-                Map<Ship, Integer> ships = homePlanet.getShips();
-                Map<Ship, Integer> fleet = new LinkedHashMap<>();
-                while(true) {
-                    boolean found = false;
 
-                    for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
-                        if(entry.getValue() != 0) System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
-                    }
-                    System.out.println("Type out the name of the ship you want to attack with | \"Proceed\" to proceed to the next stage of the attack.");
-                    System.out.println();
-                    String response = Game.scanner.nextLine();
+    private void startAttack(Planet homePlanet, Planet enemyPlanet) {
+        if(this != Game.player) {
+            botStartAttack(homePlanet, enemyPlanet); // If bot
+            return;
+        }
+        System.out.println();
+        System.out.println("You are about to attack planet " + enemyPlanet.getFullInfo() + " belonging to " + enemyPlanet.getEmpire() + ".");
+        System.out.println("How many ships would you like to use to attack this planet?");
+        System.out.println();
+        Map<Ship, Integer> ships = homePlanet.getShips();
+        Map<Ship, Integer> fleet = new LinkedHashMap<>();
+        while(true) {
+            boolean found = false;
 
-                    if(response.equals("proceed")) break;
-
-                    for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
-                        if(response.equalsIgnoreCase(entry.getKey().getName())) {
-                            found = true;
-                            if(entry.getValue() == 0) {
-                                System.out.println("You don't have any " + entry.getKey().getName() + "!");
-                                break;
-                            }
-                            int amount;
-                            System.out.println();
-                            System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
-                            System.out.println("How many ships would you like to use?");
-                            System.out.println();
-                            try {
-                                amount = Integer.parseInt(Game.scanner.nextLine());
-                            } catch (Exception e) {
-                                System.out.println("ERROR: Invalid input!");
-                                break;
-                            }
-                            if(amount > entry.getValue()) {
-                                System.out.println("You do not have enough ships to complete this operation!");
-                                break;
-                            }
-                            if(amount < 1) {
-                                System.out.println("You must add 1 or more ships.");
-                                break;
-                            }
-                            fleet.put(entry.getKey(), amount);
-                        }
-                    }
-                    if(!found) {
-                        System.out.println("Ship not found! Try again.");
-                    }
-                }
-                int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
-                int flightTime = calcFlightTime(homePlanet, enemyPlanet, fleet);
-
-                if(deuteriumCost > homePlanet.getDeuterium()) {
-                    System.out.println();
-                    System.out.println("You do not have enough deuterium to complete this operation!");
-                    System.out.println("Your planet currently has " + homePlanet.getDeuterium() + " deuterium.");
-                    System.out.println("You need " + deuteriumCost + " deuterium to complete this operation.");
-                    System.out.println();
-                    return;
-                }
-                
-                System.out.println();
-                System.out.println("Your planet currently has " + homePlanet.getDeuterium() + " deuterium.");
-                System.out.println("You need " + deuteriumCost + " deuterium to complete this operation.");
-                System.out.println("It takes you " + flightTime + " days to complete this operation.");
-                System.out.println("Would you like to proceed? Yes | No");
-                System.out.println();
-
-                String response = Game.scanner.nextLine();
-
-                if(!response.equalsIgnoreCase("yes")) {
-                    return;
-                }
-
-                System.out.println("You are about to create a new attack.");
-                Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK)); // Makes a new attack
-                homePlanet.attackSubtract(deuteriumCost, fleet);
-                System.out.println("Attack successfully created!");
+            for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
+                if(entry.getValue() != 0) System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
             }
-            public void botStartAttack(Planet homePlanet, Planet enemyPlanet) {
-                Map<Ship, Integer> fleet = homePlanet.getShips();
-                int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
-                if(deuteriumCost > homePlanet.getDeuterium()) {
-                    homePlanet.resetGoalStatus();
-                    homePlanet.setDeuteriumGoal(deuteriumCost);
-                    // If not enough deuterium to attack, tries to get enough before attacking.
-                    homePlanet.setGoalAction(() -> this.botStartAttack(homePlanet, enemyPlanet));
-                    homePlanet.setActionType(ActionType.ATTACK);
-                    // Sets goal to attack
-                    return;
+            System.out.println("Type out the name of the ship you want to attack with | \"Proceed\" to proceed to the next stage of the attack.");
+            System.out.println();
+            String response = Game.scanner.nextLine();
+
+            if(response.equals("proceed")) break;
+
+            for(Map.Entry<Ship, Integer> entry : ships.entrySet()) {
+                if(response.equalsIgnoreCase(entry.getKey().getName())) {
+                    found = true;
+                    if(entry.getValue() == 0) {
+                        System.out.println("You don't have any " + entry.getKey().getName() + "!");
+                        break;
+                    }
+                    int amount;
+                    System.out.println();
+                    System.out.println("You have " + entry.getValue() + " " + entry.getKey() + ".");
+                    System.out.println("How many ships would you like to use?");
+                    System.out.println();
+                    try {
+                        amount = Integer.parseInt(Game.scanner.nextLine());
+                    } catch (Exception e) {
+                        System.out.println("ERROR: Invalid input!");
+                        break;
+                    }
+                    if(amount > entry.getValue()) {
+                        System.out.println("You do not have enough ships to complete this operation!");
+                        break;
+                    }
+                    if(amount < 1) {
+                        System.out.println("You must add 1 or more ships.");
+                        break;
+                    }
+                    fleet.put(entry.getKey(), amount);
                 }
-                
-                Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK));
-                homePlanet.attackSubtract(deuteriumCost, fleet);
             }
+            if(!found) {
+                System.out.println("Ship not found! Try again.");
+            }
+        }
+        int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
+        int flightTime = calcFlightTime(homePlanet, enemyPlanet, fleet);
+
+        if(deuteriumCost > homePlanet.getDeuterium()) {
+            System.out.println();
+            System.out.println("You do not have enough deuterium to complete this operation!");
+            System.out.println("Your planet currently has " + homePlanet.getDeuterium() + " deuterium.");
+            System.out.println("You need " + deuteriumCost + " deuterium to complete this operation.");
+            System.out.println();
+            return;
+        }
+        
+        System.out.println();
+        System.out.println("Your planet currently has " + homePlanet.getDeuterium() + " deuterium.");
+        System.out.println("You need " + deuteriumCost + " deuterium to complete this operation.");
+        System.out.println("It takes you " + flightTime + " days to complete this operation.");
+        System.out.println("Would you like to proceed? Yes | No");
+        System.out.println();
+
+        String response = Game.scanner.nextLine();
+
+        if(!response.equalsIgnoreCase("yes")) {
+            return;
+        }
+
+        System.out.println("You are about to create a new attack.");
+        Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK)); // Makes a new attack
+        homePlanet.attackSubtract(deuteriumCost, fleet);
+        System.out.println("Attack successfully created!");
+    }
+    public void botStartAttack(Planet homePlanet, Planet enemyPlanet) {
+        Map<Ship, Integer> fleet = homePlanet.getShips();
+        int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
+        if(deuteriumCost > homePlanet.getDeuterium()) {
+            homePlanet.resetGoalStatus();
+            // If not enough deuterium to attack, sets goal and then attacks
+            homePlanet.setGoal(
+                () -> this.botStartAttack(homePlanet, enemyPlanet),
+                ActionType.ATTACK, 
+                0, 
+                0, 
+                deuteriumCost
+            );
+            return;
+        }
+        
+        Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK));
+        homePlanet.attackSubtract(deuteriumCost, fleet);
+    }
             public static int calcDeuteriumCost(Planet planet1, Planet planet2, Map<Ship, Integer> fleet) {
                 double totalCost = 0;
                 double distance = Coordinates.getDistance(planet1.getCoordinates(), planet2.getCoordinates());
