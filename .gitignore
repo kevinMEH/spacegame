@@ -4,3 +4,4 @@ Requirements.md
 /workspace.xml
 .idea/
 Space Game.iml
+*.class
