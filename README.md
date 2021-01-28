@@ -101,7 +101,7 @@ Every planet has a goal, indicated by the **goalAction** variable of each planet
 
     A lambda expression storing the method that should be executed once goals are met. <br>
     For Example: `() -> this.botStartAttack(homePlanet, enemyPlanet)` <br>
-    ![Lambda Example](https://i.imgur.com/gVN4G6B.png)
+    ![Lambda Example](https://user-images.githubusercontent.com/71391217/106192162-cf318c00-6179-11eb-95f9-89627db65a38.png)
 
 - **actionType:**
 
