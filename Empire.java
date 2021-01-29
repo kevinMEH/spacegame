@@ -250,7 +250,7 @@ public class Empire { // Empire, along with all stats
         // Make bot form smart formations once attack formations is in effect.
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
         List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
-        while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3 + 25) {
+        while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3 + 10) {
             for(int i = ships.size() - 1; i >= 0; i--) {
                 Ship ship = ships.get(i);
                 if(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
@@ -264,7 +264,7 @@ public class Empire { // Empire, along with all stats
             || availableCrystal < Planet.lightFighters.getCrystalCost()) // If can't build anymore
                 break;
         }
-        if(calcOffensivePower(planet) - 1 > enemyDefensivePower * 1.3 + 25 && hasShips(planet)) { // Start attack if confident enough
+        if(calcOffensivePower(planet) - 1 > enemyDefensivePower * 1.3 + 10 && hasShips(planet)) { // Start attack if confident enough
             startAttack(planet, findWeakestDefensivePlanet(target)); 
             // Starts an attack on the weakest planet.
             // If deuterium is not enough, deuterium goal will be set.
@@ -294,7 +294,7 @@ public class Empire { // Empire, along with all stats
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
         List<Ship> ships = new ArrayList<>(planet.getShips().keySet());
         // TODO: Better build algorithm:
-        while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3 + 25) {
+        while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3 + 10) {
             for(int i = ships.size() - 1; i >= 0; i--) {
                 Ship ship = ships.get(i);
                 if(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
@@ -492,8 +492,12 @@ public class Empire { // Empire, along with all stats
             printStats(planet);
         } else if(response.equalsIgnoreCase("info")) {
             printInfo();
-        } else if(response.equalsIgnoreCase("continue")) { //Continue is the only way to break out of recursion.
+        } else if(response.equalsIgnoreCase("continue")) { // Continue is the only way to break out of recursion.
             return;
+        } else if(response.equalsIgnoreCase("Hello World")) { // If you see this, stop cheating
+            planet.addMetal(50000);
+            planet.addCrystal(50000);
+            planet.addDeuterium(50000);
         } else {
             System.out.println("You did not enter a valid response! Try again.");
             System.out.println();
@@ -620,7 +624,7 @@ public class Empire { // Empire, along with all stats
                 if(building.getDeuteriumCost() != 0) System.out.println("Deuterium Cost: " + building.getDeuteriumCost());
             }
 
-    public void promptAttack(Planet planet) { // TODO: Create
+    public void promptAttack(Planet planet) { // TODO: Create better algorithm
         System.out.println();
         System.out.println("Which planet would you like to attack?");
         System.out.println("You can give the location in indices or coordinates.");
@@ -754,7 +758,7 @@ public class Empire { // Empire, along with all stats
         homePlanet.attackSubtract(deuteriumCost, fleet);
         System.out.println("Attack successfully created!");
     }
-    public void botStartAttack(Planet homePlanet, Planet enemyPlanet) {
+    private void botStartAttack(Planet homePlanet, Planet enemyPlanet) {
         Map<Ship, Integer> fleet = homePlanet.getShips();
         int deuteriumCost = calcDeuteriumCost(homePlanet, enemyPlanet, fleet);
         if(deuteriumCost > homePlanet.getDeuterium()) {
@@ -763,14 +767,12 @@ public class Empire { // Empire, along with all stats
             homePlanet.setGoal(
                 () -> this.botStartAttack(homePlanet, enemyPlanet),
                 ActionType.ATTACK, 
-                0, 
-                0, 
-                deuteriumCost
+                0, 0, deuteriumCost
             );
             return;
         }
-        
-        Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet, Expedition.ExpeditionType.ATTACK));
+        Game.expeditions.add(new Expedition(homePlanet, enemyPlanet, fleet,
+                Expedition.ExpeditionType.ATTACK));
         homePlanet.attackSubtract(deuteriumCost, fleet);
     }
             public static int calcDeuteriumCost(Planet planet1, Planet planet2, Map<Ship, Integer> fleet) {
