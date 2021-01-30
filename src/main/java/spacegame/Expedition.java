@@ -1,3 +1,5 @@
+package spacegame;
+
 import java.util.Map;
 
 public class Expedition {

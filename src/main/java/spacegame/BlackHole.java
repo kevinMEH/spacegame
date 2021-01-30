@@ -1,3 +1,5 @@
+package spacegame;
+
 public class BlackHole extends Coordinates { // Our galaxy is centered around a Black Hole.
 
     private final Star[] stars = new Star[10]; // Array of 10 suns in this galaxy.

@@ -1,3 +1,5 @@
+package spacegame;
+
 class Building {
 
     // Resource cost of building

@@ -1,3 +1,5 @@
+package spacegame;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -625,6 +627,7 @@ public class Empire { // Empire, along with all stats
             }
 
     public void promptAttack(Planet planet) { // TODO: Create better algorithm
+        // TODO: Stop people from attacking if no ships
         System.out.println();
         System.out.println("Which planet would you like to attack?");
         System.out.println("You can give the location in indices or coordinates.");

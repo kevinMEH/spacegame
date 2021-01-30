@@ -1,4 +1,6 @@
-public class Ship {
+package spacegame;
+
+public class Defense {
 
     private final String name;
     private String description;
@@ -8,49 +10,18 @@ public class Ship {
 
     private final int health;
     private final int attack;
-    private int storage = 1000;
-    
-    private double offensivePower; public double getOffensivePower() {return offensivePower;}
+
     private double defensivePower; public double getDefensivePower() {return defensivePower;}
-    public void setPower(double offensive, double defensive) {this.offensivePower = offensive; this.defensivePower = defensive;}
+    public void setPower(double power) {this.defensivePower = power;} 
 
     private int levelRequired = 1;
 
-    private double fuelMultiplier = 1; // Multiplied by deuterium cost based on fuel
-    private double speedMultiplier = 1; // Speed of the spacecraft
-    private double antishipMultiplier = 1; // Multiplier against other ships
-    private double antidefenseMultiplier = 1; // Multiplier against defenses
-
-    public Ship(String name, int metalCost, int crystalCost, int health, int attack, int storage) {
-        this.name = name;
-        this.metalCost = metalCost;
-        this.crystalCost = crystalCost;
-        this.attack = attack;
-        this.health = health;
-        this.storage = storage;
-    }
-
-    public Ship(String name, int metalCost, int crystalCost, int health, int attack) {
-        this.name = name;
-        this.metalCost = metalCost;
-        this.crystalCost = crystalCost;
-        this.attack = attack;
-        this.health = health;
-    }
-
-    public Ship(String name, int metalCost, int crystalCost, int health, int attack, double fuelMultiplier, double speedMultiplier) {
+    public Defense(String name, int metalCost, int crystalCost, int health, int attack) {
         this.name = name;
         this.metalCost = metalCost;
         this.crystalCost = crystalCost;
         this.health = health;
         this.attack = attack;
-        this.fuelMultiplier = fuelMultiplier;
-        this.speedMultiplier = speedMultiplier;
-    }
-
-    public void setMultiplier(double antishipMultiplier, double antidefenseMultiplier) {
-        this.antishipMultiplier = antishipMultiplier;
-        this.antidefenseMultiplier = antidefenseMultiplier;
     }
 
     public void build(Planet planet) {
@@ -59,7 +30,7 @@ public class Ship {
             return;
         }
         if(planet.getShipyardLevel() < this.getLevelRequired()) {
-            System.out.println("Your shipyard level is not high enough to build this ship!");
+            System.out.println("Your shipyard level is not high enough to build this defense!");
             System.out.println("Your shipyard level: " + planet.getShipyardLevel());
             System.out.println("Level required to build " + name +": " + this.getLevelRequired());
             return;
@@ -82,15 +53,15 @@ public class Ship {
             return;
         }
         if(totalCrystalCost > planet.getCrystal()) {
-            System.out.println("You do not have enough crystal to complete this operation!");
+            System.out.print("You do not have enough crystal to complete this operation!");
             return;
         }
         planet.addMetal(totalMetalCost * -1);
         planet.addCrystal(totalCrystalCost * -1);
-        planet.setShipCount(this, planet.getShipCount(this) + amount);
+        planet.setDefenseCount(this, planet.getDefenseCount(this) + amount);
         System.out.println("Successfully built " + amount + " " + name + ".");
     }
-
+    
     public void botBuild(Planet planet) {
         if(metalCost > planet.getMetal()) {
             System.out.println("ERROR: Bot attempted to build ships without enough metal. botBuild()");
@@ -102,7 +73,7 @@ public class Ship {
         }
         planet.addMetal(metalCost * -1);
         planet.addCrystal(crystalCost * -1);
-        planet.setShipCount(this, planet.getShipCount(this) + 1);
+        planet.setDefenseCount(this, planet.getDefenseCount(this) + 1);
     }
 
     public void printInfo() {
@@ -118,7 +89,6 @@ public class Ship {
     public void printStats() {
         System.out.println("Health: " + health);
         System.out.println("Attack: " + attack);
-        System.out.println("Storage: " + storage);
     }
 
     public void setDescription(String description) {this.description = description;}
@@ -132,14 +102,7 @@ public class Ship {
 
     public int getAttack() {return attack;}
     public int getHealth() {return health;}
-    public int getStorage() {return storage;}
-
-    public double getFuelMultiplier() {return fuelMultiplier;}
-    public double getSpeedMultiplier() {return speedMultiplier;}
-    public double getAntishipMultiplier() {return antishipMultiplier;}
-    public double getAntidefenseMultiplier() {return antidefenseMultiplier;}
 
     @Override public String toString() {return name;}
     public String getName() {return name;}
-
 }

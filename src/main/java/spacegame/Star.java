@@ -1,3 +1,5 @@
+package spacegame;
+
 public class Star extends Coordinates { // Star of a planetary system.
 
     private final BlackHole blackHole;

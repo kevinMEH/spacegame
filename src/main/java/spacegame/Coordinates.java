@@ -1,3 +1,5 @@
+package spacegame;
+
 abstract class Coordinates {
 
     // Max values for coordinates should be from -50 to 50.
