@@ -85,11 +85,11 @@ public class Expedition {
                 int count = entry.getValue();
                 if(count != 0) System.out.println(count + " " + ship.getName());
                 attackerTotalDamage = attackerTotalDamage + ship.getAttack() * count;
-                if(ship.getAntishipMultiplier() > 1) {
-                    attackerAntiShipDamage = (int) (attackerAntiShipDamage + (ship.getAntishipMultiplier() - 1) * (ship.getAttack() * count));
+                if(ship.getAntiShipMultiplier() > 1) {
+                    attackerAntiShipDamage = (int) (attackerAntiShipDamage + (ship.getAntiShipMultiplier() - 1) * (ship.getAttack() * count));
                 }
-                if(ship.getAntidefenseMultiplier() > 1) {
-                    attackerAntiDefenseDamage = (int) (attackerAntiDefenseDamage + (ship.getAntidefenseMultiplier() - 1) * (ship.getAttack() * count));
+                if(ship.getAntiDefenseMultiplier() > 1) {
+                    attackerAntiDefenseDamage = (int) (attackerAntiDefenseDamage + (ship.getAntiDefenseMultiplier() - 1) * (ship.getAttack() * count));
                 }
             }
             System.out.println("Defender ships left:");
@@ -99,8 +99,8 @@ public class Expedition {
                 if(count != 0) System.out.println(count + " " + ship.getName());
                 defenderTotalDamage = (int) (0.7 * defenderTotalDamage + ship.getAttack() * count);
                 defenderShipTotalHealth = defenderShipTotalHealth + ship.getHealth() * count;
-                if(ship.getAntishipMultiplier() > 1) {
-                    defenderAntiShipDamage = (int) (0.7 * defenderAntiShipDamage + (ship.getAntidefenseMultiplier() - 1) * (ship.getAttack() * count));
+                if(ship.getAntiShipMultiplier() > 1) {
+                    defenderAntiShipDamage = (int) (0.7 * defenderAntiShipDamage + (ship.getAntiDefenseMultiplier() - 1) * (ship.getAttack() * count));
                 }
             }
             System.out.println("Defender defenses left:");
@@ -224,47 +224,9 @@ public class Expedition {
             botLoot();
             return;
         }
-        int storageSpace = 0;
-        for(Map.Entry<Ship, Integer> entry : attackerFleet.entrySet()) {
-            storageSpace = storageSpace + entry.getKey().getStorage() * entry.getValue();
-        }
-        System.out.println("Defender Metal Amount: " + defender.getMetal());
-        System.out.println("Defender Crystal Amount: " + defender.getCrystal());
-        System.out.println("Defender Deuterium Amount: " + defender.getDeuterium());
-        System.out.println("Total amount of storage space you have: " + storageSpace);
-        boolean selected = false;
-        while(!selected) {
-            System.out.println("How much metal would you like to take?");
-            int response;
-            try {
-                response = Integer.parseInt(Game.scanner.nextLine());
-            } catch (Exception e) {
-                System.out.println("ERROR: Invalid input! Please enter a valid number.");
-                continue;
-            }
-            if(!validNumber(response, storageSpace)) continue;
-            metalLoot = response;
-            System.out.println("How much crystal would you like to take?");
-            try {
-                response = Integer.parseInt(Game.scanner.nextLine());
-            } catch (Exception e) {
-                System.out.println("ERROR: Invalid input! Please enter a valid number.");
-                continue;
-            }
-            if(!validNumber(response, storageSpace - metalLoot)) continue;
-            crystalLoot = response;
-            System.out.println("How much deuterium would you like to take?");
-            try {
-                response = Integer.parseInt(Game.scanner.nextLine());
-            } catch (Exception e) {
-                System.out.println("ERROR: Invalid input! Please enter a valid number.");
-                continue;
-            }
-            if(!validNumber(response, storageSpace - (metalLoot + crystalLoot))) continue;
-            deuteriumLoot = response;
-            
-            selected = true;
-        }
+        System.out.println("Acquired Metal Amount: " + defender.getMetal());
+        System.out.println("Acquired Crystal Amount: " + defender.getCrystal());
+        System.out.println("Acquired Deuterium Amount: " + defender.getDeuterium());
         defender.addMetal(metalLoot * -1);
         defender.addCrystal(crystalLoot * -1);
         defender.addDeuterium(deuteriumLoot * -1);
@@ -276,21 +238,6 @@ public class Expedition {
         defender.addMetal(defender.getMetal() * -1);
         defender.addCrystal(defender.getCrystal() * -1);
         defender.addDeuterium(defender.getDeuterium() * -1);
-    }
-    public boolean validNumber(int number, int storageSpace) {
-        if(number > storageSpace) {
-            System.out.println("ERROR: You cannot take more than you can carry!");
-            return false;
-        }
-        if(number > defender.getMetal()) {
-            System.out.println("ERROR: You cannot take more than what the planet has!");
-            return false;
-        }
-        if(number < 0) {
-            System.out.println("ERROR: You cannot take negative amounts of resources!");
-            return false;
-        }
-        return true;
     }
     public void transportSequence() {
         if(this.attacker.getEmpire() == Game.player || this.defender.getEmpire() == Game.player) {

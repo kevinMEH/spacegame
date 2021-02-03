@@ -8,13 +8,13 @@ public class Star extends Coordinates { // Star of a planetary system.
 
     private final int systemIndex;
 
-    public void initializePlanets() { // Initializes the 10 planets and add to array
+    private void initializePlanets() { // Initializes the 10 planets and add to array
         for(int i = 0; i < 10; i++) {
             planets[i] = new Planet(this, i);
         }
     }
 
-    public Star(BlackHole blackHole, int index) { // Make star
+    Star(BlackHole blackHole, int index) { // Make star
         this.blackHole = blackHole;
         // Max coordinate is 45, minimum is -45.
         // This is to give planets space to generate without exceeding the -50 to 50 limit.
@@ -24,6 +24,7 @@ public class Star extends Coordinates { // Star of a planetary system.
             (int) (Math.random() * 91 - 45)
         );
         this.systemIndex = index;
+        initializePlanets();
     }
     // TODO:
     // IMPORTANT: Make sure 2 suns cannot be on top of one another.
@@ -34,10 +35,10 @@ public class Star extends Coordinates { // Star of a planetary system.
     // 2 x 50 / 3 - 25 / 3
     // 50 - 25 / 3
 
-    public int getSystemIndex() {return systemIndex;}
-    public BlackHole getBlackHole() {return blackHole;}
-    public Planet[] getPlanets() {return planets;}
-    public Planet getPlanet(int i) { // Takes a parameter from 0 to 9 and then returns the planet at that slot.
+    int getSystemIndex() {return systemIndex;}
+    BlackHole getBlackHole() {return blackHole;}
+    Planet[] getPlanets() {return planets;}
+    Planet getPlanet(int i) { // Takes a parameter from 0 to 9 and then returns the planet at that slot.
         if(i >= 0 && i <= 9) {
             return planets[i];
         } else if(i < 0) {
@@ -48,8 +49,8 @@ public class Star extends Coordinates { // Star of a planetary system.
             return planets[9];
         }
     }
-    public Planet getRandomPlanet() {
-        int random = (int) (Math.random() * planets.length);
+    Planet getRandomPlanet() {
+        int random = (Game.random.nextInt(planets.length));
         return planets[random];
     }
 

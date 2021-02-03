@@ -82,7 +82,7 @@ public class Empire { // Empire, along with all stats
         }
     }
 
-    public void botStartActions() {
+    void botStartActions() {
         for(Planet planet : planets) {
             switch (planet.getStatus()) {
                 case ALERT       -> alert      (planet);
@@ -95,7 +95,7 @@ public class Empire { // Empire, along with all stats
         }
     }
     
-    public void alert(Planet planet) { // Mostly develop, build ships and defenses
+    private void alert(Planet planet) { // Mostly develop, build ships and defenses
         if(Math.random() < 0.75) { // TODO: Make sep algorithm. Too lazy.
             develop(planet);
         } else {
@@ -120,7 +120,7 @@ public class Empire { // Empire, along with all stats
                 Defense defense = defenses.get(i);
                 int metalCost = defense.getMetalCost();
                 int crystalCost = defense.getCrystalCost();
-                while(enoughMaterialsDefense(defenseMetal, defenseCrystal, defense)) { // Tries to build defenses until it can't anymore.
+                while(enoughMaterials(defenseMetal, defenseCrystal, defense)) { // Tries to build defenses until it can't anymore.
                     defense.build(planet);
                     defenseMetal = defenseMetal - metalCost;
                     defenseCrystal = defenseCrystal - crystalCost;
@@ -134,7 +134,7 @@ public class Empire { // Empire, along with all stats
                 Ship ship = ships.get(i);
                 int metalCost = ship.getMetalCost();
                 int crystalCost = ship.getCrystalCost();
-                while(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
+                while(enoughMaterials(availableMetal, availableCrystal, ship)) {
                     ship.build(planet);
                     availableMetal = availableMetal - metalCost;
                     availableCrystal = availableCrystal - crystalCost;
@@ -142,7 +142,7 @@ public class Empire { // Empire, along with all stats
             }
         }
     }
-    public void defensive(Planet planet) { // AI build defenses
+    private void defensive(Planet planet) { // AI build defenses
         int metalAmount = planet.getMetal();
         int crystalAmount = planet.getCrystal();
 
@@ -166,7 +166,7 @@ public class Empire { // Empire, along with all stats
             Defense defense = defenses.get(i);
             int metalCost = defense.getMetalCost();
             int crystalCost = defense.getCrystalCost();
-            while(enoughMaterialsDefense(defenseMetal, defenseCrystal, defense)) { // Tries to build defenses until it can't anymore.
+            while(enoughMaterials(defenseMetal, defenseCrystal, defense)) { // Tries to build defenses until it can't anymore.
                 defense.build(planet);
                 defenseMetal = defenseMetal - metalCost;
                 defenseCrystal = defenseCrystal - crystalCost;
@@ -180,19 +180,19 @@ public class Empire { // Empire, along with all stats
             Ship ship = ships.get(i);
             int metalCost = ship.getMetalCost();
             int crystalCost = ship.getCrystalCost();
-            while(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
+            while(enoughMaterials(availableMetal, availableCrystal, ship)) {
                 ship.build(planet);
                 availableMetal = availableMetal - metalCost;
                 availableCrystal = availableCrystal - crystalCost;
             }
         }
     }
-    enum FocusBuilding {
+    private enum FocusBuilding {
         METAL,
         CRYSTAL,
         DEUTERIUM,
     }
-    public void develop(Planet planet) {
+    private void develop(Planet planet) {
         if(planet.validAction() && planet.goalMet()) {
             planet.execute();
             planet.resetGoalStatus();
@@ -223,14 +223,14 @@ public class Empire { // Empire, along with all stats
         } else { // Set goal to upgrade building
             planet.resetGoalStatus();
             planet.setGoal(
-                targetBuilding::levelUp, ActionType.DEVELOP, 
+                () -> targetBuilding.levelUp(), ActionType.DEVELOP, 
                 targetBuilding.getMetalCost(), 
                 targetBuilding.getCrystalCost(), 
                 targetBuilding.getDeuteriumCost()
             );
         }
     }
-    public void offensive(Planet planet) {
+    private void offensive(Planet planet) {
         int availableMetal = planet.getMetal();
         int availableCrystal = planet.getCrystal();
         
@@ -255,15 +255,15 @@ public class Empire { // Empire, along with all stats
         while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3 + 10) {
             for(int i = ships.size() - 1; i >= 0; i--) {
                 Ship ship = ships.get(i);
-                if(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
+                if(enoughMaterials(availableMetal, availableCrystal, ship)) {
                     ship.build(planet);
                     availableMetal = availableMetal - ship.getMetalCost();
                     availableCrystal = availableCrystal - ship.getCrystalCost();
                     break;
                 }
             }
-            if(availableMetal < Planet.lightFighters.getMetalCost() 
-            || availableCrystal < Planet.lightFighters.getCrystalCost()) // If can't build anymore
+            if(availableMetal < Planet.fighters.getMetalCost() 
+            || availableCrystal < Planet.fighters.getCrystalCost()) // If can't build anymore
                 break;
         }
         if(calcOffensivePower(planet) - 1 > enemyDefensivePower * 1.3 + 10 && hasShips(planet)) { // Start attack if confident enough
@@ -274,10 +274,10 @@ public class Empire { // Empire, along with all stats
             // (Unlikely as bot will have lots of ships.)
         }
     }
-            public Planet findWeakestDefensivePlanet(Empire empire) {
+            private Planet findWeakestDefensivePlanet(Empire empire) {
                 List<Planet> empirePlanets = empire.getPlanets();
                 if(empirePlanets.isEmpty()) {
-                    empire.forceNewTargetAndCheckGameEnd();
+                    empire.forceNewTarget();
                     return findWeakestDefensivePlanet(target);
                 }
                 Planet weakestPlanet = empirePlanets.get(0);
@@ -290,7 +290,7 @@ public class Empire { // Empire, along with all stats
                 }
                 return weakestPlanet;
             }
-    public void coordinated(Planet planet) {
+    private void coordinated(Planet planet) {
         int availableMetal = planet.getMetal();
         int availableCrystal = planet.getCrystal();
         int enemyDefensivePower = calcDefensivePower(findWeakestDefensivePlanet(target));
@@ -299,15 +299,15 @@ public class Empire { // Empire, along with all stats
         while(calcOffensivePower(planet) - 1 < enemyDefensivePower * 1.3 + 10) {
             for(int i = ships.size() - 1; i >= 0; i--) {
                 Ship ship = ships.get(i);
-                if(enoughMaterialsAndNotCargo(availableMetal, availableCrystal, ship)) {
+                if(enoughMaterials(availableMetal, availableCrystal, ship)) {
                     ship.build(planet);
                     availableMetal = availableMetal - ship.getMetalCost();
                     availableCrystal = availableCrystal - ship.getCrystalCost();
                     break;
                 }
             }
-            if(availableMetal < Planet.lightFighters.getMetalCost() 
-            || availableCrystal < Planet.lightFighters.getCrystalCost()) // If can't build anymore
+            if(availableMetal < Planet.fighters.getMetalCost() 
+            || availableCrystal < Planet.fighters.getCrystalCost()) // If can't build anymore
                 break;
         }
         if(hasShips(planet)) startAttack(planet, findWeakestDefensivePlanet(coordinatedTarget)); 
@@ -321,15 +321,14 @@ public class Empire { // Empire, along with all stats
         return false;
     }
     
-    public boolean enoughMaterialsAndNotCargo(int availableMetal, int availableCrystal, Ship ship) {
-        if(ship.getOffensivePower() == 0) return false;
+    public boolean enoughMaterials(int availableMetal, int availableCrystal, Ship ship) {
         return (availableMetal >= ship.getMetalCost() && availableCrystal >= ship.getCrystalCost());
     }
-    public boolean enoughMaterialsDefense(int defenseMetal, int defenseCrystal, Defense defense) {
+    public boolean enoughMaterials(int defenseMetal, int defenseCrystal, Defense defense) {
         return defenseMetal >= defense.getMetalCost() && defenseCrystal >= defense.getCrystalCost();
     }
     
-    public int[] enemyAveragePower() {
+    private int[] enemyAveragePower() {
         int enemyOffensivePower = 0;
         int enemyDefensivePower = 0;
         int enemyPotentialPower = 0;
@@ -391,7 +390,7 @@ public class Empire { // Empire, along with all stats
         }
     }
 
-    public void newTarget() { // Selects new primary target.
+    void newTarget() { // Selects new primary target.
         if((Game.random.nextInt(15) == 0 && getDaysSinceLastAttack() > 15)
         || target == null || target.checkDestroyed()) {
             switch (affiliation) {
@@ -400,27 +399,30 @@ public class Empire { // Empire, along with all stats
             }
         }
     }
-    public void forceNewTargetAndCheckGameEnd() {
+    public void forceNewTarget() {
         switch (affiliation) {
-            case ALIEN -> target = Game.humans.get(Game.random.nextInt(Game.humans.size()));
-            case HUMAN -> target = Game.aliens.get(Game.random.nextInt(Game.humans.size()));
+            case ALIEN -> {
+                if(Game.humans.isEmpty()) System.out.println("ERROR: Humans empty, cannot get new target! forceNewTarget()");
+                target = Game.humans.get(Game.random.nextInt(Game.humans.size()));
+            }
+            case HUMAN -> {
+                if(Game.aliens.isEmpty()) System.out.println("ERROR: Aliens empty, cannot get new target! forceNewTarget()");
+                target = Game.aliens.get(Game.random.nextInt(Game.humans.size()));
+            }
         }
     }
 
-    public static int calcOffensivePower(Planet planet) { // Calculates offensive threat of planet
+    private static int calcOffensivePower(Planet planet) { // Calculates offensive threat of planet
         return (int) (
-            planet.getShipCount(Planet.lightFighters    ) * Planet.lightFighters   .getOffensivePower() +
-            planet.getShipCount(Planet.smallCargoShips  ) * Planet.smallCargoShips .getOffensivePower() +
-            planet.getShipCount(Planet.heavyFighters    ) * Planet.heavyFighters   .getOffensivePower() +
+            planet.getShipCount(Planet.fighters    ) * Planet.fighters   .getOffensivePower() +
             planet.getShipCount(Planet.destroyers       ) * Planet.destroyers      .getOffensivePower() +
             planet.getShipCount(Planet.tanks            ) * Planet.tanks           .getOffensivePower() +
             planet.getShipCount(Planet.hijackers        ) * Planet.hijackers       .getOffensivePower() +
-            planet.getShipCount(Planet.largeCargoShips  ) * Planet.largeCargoShips .getOffensivePower() +
             planet.getShipCount(Planet.missileLaunchers ) * Planet.missileLaunchers.getOffensivePower() +
             planet.getShipCount(Planet.battleships      ) * Planet.battleships     .getOffensivePower()
             );
     }
-    public static int calcOffensivePower(Map<Ship, Integer> fleet) {
+    private static int calcOffensivePower(Map<Ship, Integer> fleet) {
         int total = 0;
         for(Map.Entry<Ship, Integer> entry : fleet.entrySet()) {
             Ship ship = entry.getKey();
@@ -429,16 +431,13 @@ public class Empire { // Empire, along with all stats
         }
         return total;
     }
-    public static int calcDefensivePower(Planet planet) {
+    private static int calcDefensivePower(Planet planet) {
         return (int) (
             0.8 * ( // Ships weaker when defending
-                planet.getShipCount(Planet.lightFighters    ) * Planet.lightFighters   .getDefensivePower() +
-                planet.getShipCount(Planet.smallCargoShips  ) * Planet.smallCargoShips .getDefensivePower() +
-                planet.getShipCount(Planet.heavyFighters    ) * Planet.heavyFighters   .getDefensivePower() +
+                planet.getShipCount(Planet.fighters    ) * Planet.fighters   .getDefensivePower() +
                 planet.getShipCount(Planet.destroyers       ) * Planet.destroyers      .getDefensivePower() +
                 planet.getShipCount(Planet.tanks            ) * Planet.tanks           .getDefensivePower() +
                 planet.getShipCount(Planet.hijackers        ) * Planet.hijackers       .getDefensivePower() +
-                planet.getShipCount(Planet.largeCargoShips  ) * Planet.largeCargoShips .getDefensivePower() +
                 planet.getShipCount(Planet.missileLaunchers ) * Planet.missileLaunchers.getDefensivePower() +
                 planet.getShipCount(Planet.battleships      ) * Planet.battleships     .getDefensivePower()
                 ) +
@@ -448,7 +447,7 @@ public class Empire { // Empire, along with all stats
                 planet.getDefenseCount(Planet.particleAccelerator ) * Planet.particleAccelerator.getDefensivePower()
         );
     }
-    public static int calcPotentialPower(Planet planet) { // Calculates the potential offensive threat / defensive power of planet
+    private static int calcPotentialPower(Planet planet) { // Calculates the potential offensive threat / defensive power of planet
         int levels = planet.getMetalMineLevel() + planet.getCrystalMineLevel() + planet.getDeuteriumMineLevel();
         int resourceCount = planet.getMetal() + planet.getCrystal() * 2 + planet.getDeuterium() * 3;
         return (levels / 3) * (resourceCount / 1200);
@@ -471,7 +470,7 @@ public class Empire { // Empire, along with all stats
         }
     }
 
-    public void playerStartActions(Planet planet) {
+    private void playerStartActions(Planet planet) {
         System.out.println();
         System.out.println(planet.getFullInfo());
         System.out.println("Metal: " + planet.getMetal());
@@ -483,7 +482,7 @@ public class Empire { // Empire, along with all stats
         System.out.println();
         String response = Game.scanner.nextLine();
 
-        // TODO: Add research
+        // TODO: Add research NOT!!!
         if(response.equalsIgnoreCase("build")) {
             promptBuild(planet);
         } else if(response.equalsIgnoreCase("attack")) {
@@ -506,7 +505,7 @@ public class Empire { // Empire, along with all stats
         }
         playerStartActions(planet);
     }
-            public void promptBuild(Planet planet) {
+            private void promptBuild(Planet planet) {
                 System.out.println();
                 System.out.println("What would you like to build on " + planet.getName() + "?");
                 System.out.println("(1) Build / Level Up | (2) Build Ships | (3) Build Defenses");
@@ -523,7 +522,7 @@ public class Empire { // Empire, along with all stats
                     }
                 }
             }
-            public void levelUp(Planet planet) {
+            private void levelUp(Planet planet) {
                 List<Building> buildings = planet.getBuildings();
                 System.out.println();
                 System.out.println("What would you like to build / level up?");
@@ -556,7 +555,7 @@ public class Empire { // Empire, along with all stats
                 System.out.println("Building not found!");
                 levelUp(planet);
             }
-            public void promptBuildShips(Planet planet) {
+            private void promptBuildShips(Planet planet) {
                 System.out.println();
                 System.out.println("Which ship would you like to build?");
                 System.out.println("Type out the name of the ship for more information. | \"Back\" to go back.");
@@ -577,7 +576,6 @@ public class Empire { // Empire, along with all stats
                         System.out.println(ship.toString());
                         System.out.println(ship.getDescription());
                         ship.printInfo();
-                        System.out.println("Shipyard level required: " + ship.getLevelRequired());
                         System.out.println("You currently have " + planet.getShipCount(ship) + " " + ship.toString() + ".");
                         System.out.println();
                         ship.build(planet);
@@ -588,7 +586,7 @@ public class Empire { // Empire, along with all stats
                 System.out.println("Ship not found! Try again.");
                 promptBuildShips(planet);
             }
-            public void promptBuildDefenses(Planet planet) {
+            private void promptBuildDefenses(Planet planet) {
                 System.out.println();
                 System.out.println("Which defense would you like to build?");
                 System.out.println("Type out the name of the defense for more information. | \"Back\" to go back.");
@@ -609,7 +607,6 @@ public class Empire { // Empire, along with all stats
                         System.out.println(defense.toString());
                         System.out.println(defense.getDescription());
                         defense.printInfo();
-                        System.out.println("Shipyard level required: " + defense.getLevelRequired());
                         System.out.println("You currently have " + planet.getDefenseCount(defense) + " " + defense.toString() + ".");
                         System.out.println();
                         defense.build(planet);
@@ -620,14 +617,15 @@ public class Empire { // Empire, along with all stats
                 System.out.println("Defense not found! Try again.");
                 promptBuildDefenses(planet);
             }
-            public void printBuildingCost(Building building) {
+            private void printBuildingCost(Building building) {
                 if(building.getMetalCost() != 0) System.out.println("Metal Cost: " + building.getMetalCost());
                 if(building.getCrystalCost() != 0) System.out.println("Crystal Cost: " + building.getCrystalCost());
                 if(building.getDeuteriumCost() != 0) System.out.println("Deuterium Cost: " + building.getDeuteriumCost());
             }
 
-    public void promptAttack(Planet planet) { // TODO: Create better algorithm
+    private void promptAttack(Planet planet) { // TODO: Create better algorithm
         // TODO: Stop people from attacking if no ships
+        // TODO: Refactor this
         System.out.println();
         System.out.println("Which planet would you like to attack?");
         System.out.println("You can give the location in indices or coordinates.");
@@ -675,7 +673,7 @@ public class Empire { // Empire, along with all stats
         System.out.println("Planet not found!");
     }
 
-    private void startAttack(Planet homePlanet, Planet enemyPlanet) {
+    private void startAttack(Planet homePlanet, Planet enemyPlanet) { // TODO: REFACTOR THIS
         if(this != Game.player) {
             botStartAttack(homePlanet, enemyPlanet); // If bot
             return;
@@ -805,7 +803,7 @@ public class Empire { // Empire, along with all stats
                 return (int) ((averageSpeed * distance) / 100) + 1; // 2 Days minimum, 4 max | 50) + 2 |
             }
 
-    public void showMap() {
+    private void showMap() {
         System.out.println();
         System.out.println("Which party do you want to display planets for?");
         System.out.println("Aliens | Humans | All");
@@ -815,45 +813,30 @@ public class Empire { // Empire, along with all stats
 
         if(response.equalsIgnoreCase("aliens") || response.equalsIgnoreCase("alien")) {
             System.out.println("aliens:");
-            for(Empire empire : Game.aliens) {
-                System.out.println("Empire: " + empire.toString());
-                for(Planet planet : empire.getPlanets()) {
-                    System.out.println(planet.getFullInfo());
-                }
-                System.out.println();
-            }
+            printPlanets(Game.aliens);
         } else if(response.equalsIgnoreCase("humans") || response.equalsIgnoreCase("human")) {
             System.out.println("Humans:");
-            for(Empire empire : Game.humans) {
-                System.out.println("Empire: " + empire.toString());
-                for(Planet planet : empire.getPlanets()) {
-                    System.out.println(planet.getFullInfo());
-                }
-                System.out.println();
-            }
+            printPlanets(Game.humans);
         } else if(response.equalsIgnoreCase("all")) {
             System.out.println("Aliens:");
-            for(Empire empire : Game.aliens) {
-                System.out.println("Empire: " + empire.toString());
-                for(Planet planet : empire.getPlanets()) {
-                    System.out.println(planet.getFullInfo());
-                }
-                System.out.println();
-            }
+            printPlanets(Game.aliens);
             System.out.println("Humans:");
-            for(Empire empire : Game.humans) {
-                System.out.println("Empire: " + empire.toString());
-                for(Planet planet : empire.getPlanets()) {
-                    System.out.println(planet.getFullInfo());
-                }
-                System.out.println();
-            }
+            printPlanets(Game.humans);
         } else {
             System.out.println("Invalid input!");
         }
     }
+            private void printPlanets(List<Empire> empire) {
+                for(Empire indexEmpire : empire) {
+                    System.out.println("Empire: " + indexEmpire.toString());
+                    for(Planet planet : indexEmpire.getPlanets()) {
+                        System.out.println(planet.getFullInfo());
+                    }
+                    System.out.println();
+                }
+            }
     
-    public void printStats(Planet planet) {
+    private void printStats(Planet planet) {
         System.out.println();
         System.out.println("Metal: " + planet.getMetal());
         System.out.println("Crystal: " + planet.getCrystal());
@@ -861,7 +844,7 @@ public class Empire { // Empire, along with all stats
         System.out.println();
     }
 
-    public void printInfo() {
+    private void printInfo() {
         System.out.println();
         System.out.println("Build: Build new ships or defenses or upgrade existing buildings.");
         System.out.println("Attack: Attack an enemy planet.");
@@ -893,7 +876,7 @@ public class Empire { // Empire, along with all stats
     public int getDaysSinceLastAttack() {return daysSinceLastAttack;}
     public void setDaysSinceLastAttack(int i) {daysSinceLastAttack = i;}
 
-    public Affiliation getAffilication() {return affiliation;}
+    public Affiliation getAffiliation() {return affiliation;}
     public String toString() {return name;}
     public String getName() {return name;}
 }
