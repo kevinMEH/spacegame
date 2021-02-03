@@ -31,15 +31,14 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     private static final double BASE_DEUTERIUM_MULTIPLIER = 10;
 
     private Status status;
-    public Status getStatus() {return status;}
-    public void setStatus(Status status) {this.status = status;}
+    Status getStatus() {return status;}
+    void setStatus(Status status) {this.status = status;}
     
     private String name;
     private Empire empire;
     private final Star star;
     private final int planetIndex; // Index of the planet
     private boolean colonized = false; // TODO: Add colonization
-    private boolean initiated = false;
     private boolean destroyed = false;
 
     private int temperature; // Temperature of the planet, affects many generation properties.
@@ -57,18 +56,18 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     private int localCrystal = 9_000;
     private int localDeuterium = 4_500;
 
-    // Goal amount of resources that bot wants. TODO:
+    // Goal amount of resources that bot wants.
     private int metalGoal;
     private int crystalGoal;
     private int deuteriumGoal;
     private Action goalAction; // What to execute when goal is met // TODO: Make it so that goals are not overrided
     private ActionType actionType;
 
-    public interface Action {void execute();}
-    public void execute() {goalAction.execute();}
-    public Action getGoalAction() {return goalAction;}
-    public ActionType getActionType() {return actionType;}
-    public void setGoal(Action goalAction, ActionType actionType, 
+    interface Action {void execute();}
+    void execute() {goalAction.execute();}
+    Action getGoalAction() {return goalAction;}
+    ActionType getActionType() {return actionType;}
+    void setGoal(Action goalAction, ActionType actionType, 
     int metalGoal, int crystalGoal, int deuteriumGoal) {
         this.goalAction = goalAction;
         this.actionType = actionType;
@@ -99,38 +98,37 @@ public class Planet extends Coordinates { //Individual planet, resource amount
             return true;
         }
     }
-    public boolean goalMet() {return (localMetal >= metalGoal && localCrystal >= crystalGoal && localDeuterium >= deuteriumGoal);}
+    public boolean goalMet() {
+        return localMetal >= metalGoal 
+            && localCrystal >= crystalGoal 
+            && localDeuterium >= deuteriumGoal;
+        }
 
     public Planet(Star star, int index) { // Makes a planet using a star and the position of the planet to the star.
         // Max coordinate is 50, minimum is -50.
         // The furthest a planet can be from the sun is 5.
         setCoordinate   (
-            (int) ((Math.random() * 11) - 5 + star.getX()),
-            (int) ((Math.random() * 11) - 5 + star.getY()),
-            (int) ((Math.random() * 11) - 5 + star.getZ())
+            Game.random.nextInt(11) - 5 + star.getX(),
+            Game.random.nextInt(11) - 5 + star.getY(),
+            Game.random.nextInt(11) - 5 + star.getZ()
         );
         this.star = star;
         this.planetIndex = index;
         this.name = star.getSystemIndex() + ":" + planetIndex;
+        setTemperature(this.planetIndex);
+        setBaseMaterialValues();
+        initializeShips();
+        initializeDefenses();
+        initializeBuildings();
     }
     // TODO:
     // IMPORTANT: Make sure 2 planets cannot be on top of one another.
     // IMPORTANT: Make sure to make the planet closer or further away according to the index that the planet is at.
     // Should be relatively simple to do, Math.random() * 11/ 10 etc.
-    
-    public void initiate() { // TODO: Delete this and move to constructor
-        setTemperature(this.planetIndex);
-        setBaseMaterialValues();
-        initiated = true;
-    }
 
     public void colonize(Empire empire) { // TODO: Remove this TODO: Add colonization
-        if(!initiated) initiate();
         this.empire = empire;
         status = Status.DEVELOP;
-        initializeBuildings();
-        initializeDefenses();
-        initializeShips();
         colonized = true;
         if(empire == Game.player || this.empire == Game.player) {
             System.out.println("You colonized this planet!");
@@ -144,12 +142,8 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         }
     }
     public void colonize(Empire empire, boolean firstRun) { // TODO: Remove this
-        if(!initiated) initiate();
         this.empire = empire;
         status = Status.DEVELOP;
-        initializeBuildings();
-        initializeDefenses();
-        initializeShips();
         colonized = true;
         if(firstRun) {
             levelUpBuildings();
@@ -167,7 +161,6 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         metalMine.levelUp();
         crystalMine.levelUp();
         deuteriumMine.levelUp();
-        solarPanel.levelUp();
     }
     
     public void destroy() {
@@ -185,7 +178,7 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         // Index should be between 0 and 9.
         // Temperature should be from -10 C to 30 C
         // Temperature affects resource generation and obtaining resources.
-        temperature = (int) ((index + 1) * (Math.random() * 4)) - 10; // Get random number between 0 and 4 and multiply by 1 - 10, then subtract 10.
+        temperature = index * Game.random.nextInt(4) - 10; // Get random number between 0 and 4 and multiply by 0 - 10, then subtract 10.
     }
 
     public void setBaseMaterialValues() { // Setting base values of multipliers and resources
@@ -210,64 +203,64 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         unminedDeuterium = (int) (unminedDeuterium + unminedDeuterium * Math.random());
     }
 
-    public static final Ship lightFighters    = new Ship("Light Fighters"   , 4000 , 3000 , 2000 , 1000 , 1     , 1.5);
-    public static final Ship smallCargoShips  = new Ship("Small Cargo Ships", 6000 , 1000 , 3000 , 0    , 10000      );
-    public static final Ship heavyFighters    = new Ship("Heavy Fighters"   , 8000 , 6500 , 4000 , 2500 , 1.2  , 0.8 );
-    public static final Ship destroyers       = new Ship("Destroyers"       , 10000, 12000, 5000 , 5500 , 1.3  , 0.9 );
-    public static final Ship tanks            = new Ship("Tanks"            , 15000, 6000 , 8000 , 2250 , 1.7  , 0.4 );
-    public static final Ship largeCargoShips  = new Ship("Large Cargo Ships", 18000, 1000 , 6000 , 0    , 40000      );
-    public static final Ship hijackers        = new Ship("Hijackers"        , 4000 , 10000, 1000 , 6000 , 1.5  , 2.5 );
-    public static final Ship missileLaunchers = new Ship("Missile Launchers", 25000, 20000, 15000, 13000, 1.8  , 0.6 );
-    public static final Ship battleships      = new Ship("Battleships"      , 50000, 40000, 30000, 28000, 2.7  , 0.4 );
+    public static final Ship fighters =
+        new Ship("Fighters", 
+        "Small, cheap and mobile ships.",
+        4000, 3000, 2000, 1000, 1, 1.5);
+    public static final Ship destroyers = 
+        new Ship("Destroyers",
+        "Powerful ships that excel at destroying enemy defenses.",
+        10000, 12000, 5000, 5500, 1.3, 0.9);
+    public static final Ship tanks = 
+        new Ship("Tanks",
+        "Slow and heavily armored ships with average firepower.",
+        15000, 8000, 8000, 4250, 1.7, 0.4);
+    public static final Ship hijackers = 
+        new Ship("Hijackers",
+        "Extremely powerful but fragile ships with serious firepower, specializing in taking down other ships.",
+        4000, 10000, 1000, 6000, 1.5, 2.5);
+    public static final Ship missileLaunchers =
+        new Ship("Missile Launchers",
+        "Ships equipped with armor piercing missiles specializing in destroying defenses.",
+        25000, 20000, 15000, 13000, 1.8, 0.6);
+    public static final Ship battleships =
+        new Ship("Battleships",
+        "The titans of the battlefield, battleships are powerful, armored ships specializing in destroying other ships.",
+        50000, 40000, 30000, 28000, 2.7  , 0.4 );
+    
     static { // Initialize attributes for ships
-        destroyers.setMultiplier(1, 1.4);
-        hijackers.setMultiplier(1.7, 1);
-        missileLaunchers.setMultiplier(1, 1.4);
-        battleships.setMultiplier(1.4, 1);
+        destroyers      .setMultiplier(1  , 1.4);
+        hijackers       .setMultiplier(1.7, 1  );
+        missileLaunchers.setMultiplier(1  , 1.4);
+        battleships     .setMultiplier(1.4, 1  );
 
-        lightFighters   .setLevelRequired(1); lightFighters   .setPower(1 , 0.8);
-        smallCargoShips .setLevelRequired(1); smallCargoShips .setPower(0 , 0  );
-        heavyFighters   .setLevelRequired(2); heavyFighters   .setPower(2 , 1.6);
-        destroyers      .setLevelRequired(3); destroyers      .setPower(4 , 3.2);
-        tanks           .setLevelRequired(4); tanks           .setPower(5 , 3  );
-        largeCargoShips .setLevelRequired(4); largeCargoShips .setPower(0 , 0  );
-        hijackers       .setLevelRequired(5); hijackers       .setPower(6 , 6  );
-        missileLaunchers.setLevelRequired(6); missileLaunchers.setPower(10, 8.4);
-        battleships     .setLevelRequired(7); battleships     .setPower(20, 18 );
-
-        lightFighters.setDescription("Small mobile ships, faster but weaker than its counterparts.");
-        smallCargoShips.setDescription("Cargo Ships, excelling at transporting cargo over long distances.");
-        heavyFighters.setDescription("Armored ships with better firepower in exchange for speed and fuel consumption.");
-        destroyers.setDescription("Powerful ships that excel at destroying enemy defenses.");
-        tanks.setDescription("Slow and heavily armored ships that can survive even the most powerful attacks.");
-        largeCargoShips.setDescription("Larger cargo ships, can hold more than 3x more than its smaller counterpart.");
-        hijackers.setDescription("Extremely agile but fragile ships with serious firepower.");
-        missileLaunchers.setDescription("Ships equipped with missiles specializing in destroying defenses.");
-        battleships.setDescription("The titans of the battlefield, battleships are powerful, armored ships capable of destroying anything.");
+        fighters         .setPower(1, 0.8);
+        destroyers       .setPower(4, 3.2);
+        tanks            .setPower(6, 4.2);
+        hijackers        .setPower(8, 8);
+        missileLaunchers .setPower(16, 12);
+        battleships      .setPower(34, 30.6);
     }
-    private Map<Ship, Integer> ships; // Stores amount of ships of each type
-    private void initializeShips() { // Putting ships into LinkedHashMap
-        ships = new LinkedHashMap<>();
-        ships.put(lightFighters, 0);
-        ships.put(smallCargoShips, 0);
-        ships.put(heavyFighters, 0);
+    
+    private Map<Ship, Integer> ships = new LinkedHashMap<>(); // Stores amount of ships of each type
+    private void initializeShips() {
+        ships.put(fighters, 0);
         ships.put(destroyers, 0);
         ships.put(tanks, 0);
         ships.put(hijackers, 0);
-        ships.put(largeCargoShips, 0);
         ships.put(missileLaunchers, 0);
         ships.put(battleships, 0);
     }
 
-    public static final Defense missileCannon = new Defense("Missile Cannon", 2000, 1000, 900, 400);
-    public static final Defense laserCannon = new Defense("Laser Cannon", 3000, 2000, 1500, 900);
-    public static final Defense plasmaCannon = new Defense("Plasma Cannon", 5000, 4000, 2800, 1900);
-    public static final Defense particleAccelerator = new Defense("Particle Accelerator", 10000, 8000, 5600, 4100);
+    static final Defense missileCannon = new Defense("Missile Cannon", 2000, 1000, 900, 400);
+    static final Defense laserCannon = new Defense("Laser Cannon", 3000, 2000, 1500, 900);
+    static final Defense plasmaCannon = new Defense("Plasma Cannon", 5000, 4000, 2800, 1900);
+    static final Defense particleAccelerator = new Defense("Particle Accelerator", 10000, 8000, 5600, 4100);
     static {
-        missileCannon      .setLevelRequired(1); missileCannon      .setPower(1  );
-        laserCannon        .setLevelRequired(2); laserCannon        .setPower(1.5);
-        plasmaCannon       .setLevelRequired(3); plasmaCannon       .setPower(3  );
-        particleAccelerator.setLevelRequired(5); particleAccelerator.setPower(6.5);
+        missileCannon      .setPower(1  );
+        laserCannon        .setPower(1.5);
+        plasmaCannon       .setPower(3  );
+        particleAccelerator.setPower(6.5);
         
         // TODO: Set in constructor instead of static block: make variables final:
         missileCannon.setDescription("Cheap and efficient missile turrets");
@@ -275,110 +268,96 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         plasmaCannon.setDescription("Superheated matter can melt through armor easily.");
         particleAccelerator.setDescription("Particle Accelerators blasts concentrated amounts of particles at extreme speeds.");
     }
-    private Map<Defense, Integer> defenses;
+    private Map<Defense, Integer> defenses = new LinkedHashMap<>();
     private void initializeDefenses() {
-        defenses = new LinkedHashMap<>();
         defenses.put(missileCannon, 0);
         defenses.put(laserCannon, 0);
         defenses.put(plasmaCannon, 0);
         defenses.put(particleAccelerator, 0);
     }
+    
+    private List<Building> buildings;
 
     private Building metalMine ;
     private Building crystalMine ;
     private Building deuteriumMine ;
-    private Building solarPanel ;
-    // private Building researchFacility; TODO: Add researching
-    private Building shipyard ;
 
     // TODO: Make all buildings static to conserve memory and make hashmap of building and level of buildings:
     private void initializeBuildings() {
-        metalMine        = new Building("Metal Mine"       , this, 3000, 2250, 250, true);
-        crystalMine      = new Building("Crystal Mine"     , this, 4000, 1500, 500, true);
-        deuteriumMine    = new Building("Deuterium Mine"   , this, 3500, 2000, 750, true);
-        solarPanel       = new Building("Solar Panel"      , this, 3500, 2500, 0   );
-        shipyard         = new Building("Shipyard"         , this, 4000, 2000, 0   );
+        metalMine        = new Building("Metal Mine"       , this, 3000, 2250, 250);
+        crystalMine      = new Building("Crystal Mine"     , this, 4000, 1500, 500);
+        deuteriumMine    = new Building("Deuterium Mine"   , this, 3500, 2000, 750);
         buildings = Arrays.asList(
             metalMine,
             crystalMine,
-            deuteriumMine,
-            solarPanel,
-            shipyard
+            deuteriumMine
         );
     }
+    
+    List<Building> getBuildings() {
+        return buildings;
+    }
+    
 
-    private List<Building> buildings;
-
-    public void executeDefaultActions() { // Executes default actions
+    void executeDefaultActions() { // Executes default actions
         if(unminedMetal > 0) metalMine.mineMetal();
         if(unminedCrystal > 0) crystalMine.mineCrystal();
         if(unminedDeuterium > 0) deuteriumMine.mineDeuterium();
     }
-
-    public List<Building> getBuildings() {
-        return buildings;
-    }
-
-    // TODO: Stop from repeating 3 times. Maybe make buildings save efficiency stat
-    public double enoughEnergy() {
-        if(this.empire != Game.player) return 1;
-        int energy = solarPanel.getEnergyOutput();
-        int energyCost = 0;
-        if(unminedMetal > 0) energyCost = energyCost + metalMine.getEnergyCost();
-        if(unminedCrystal > 0) energyCost = energyCost + crystalMine.getEnergyCost();
-        if(unminedDeuterium > 0) energyCost = energyCost + deuteriumMine.getEnergyCost();
-        if(energyCost > energy && energyCost != 0) {
-            double efficiency = Math.sqrt((double) energy / energyCost);
-            System.out.println("Not enough energy on planet " + this.getName() + "! Output decreased.");
-            System.out.println("You need " + (energyCost - energy) + " more energy to reach maximum efficiency.");
-            System.out.println("Current efficiency: " + efficiency);
-            return efficiency;
-        }
-        return 1.0;
-    } 
     
-    public void attackSubtract(int deuteriumCost, Map<Ship, Integer> fleet) {
+    void attackSubtract(int deuteriumCost, Map<Ship, Integer> fleet) {
         this.addDeuterium(deuteriumCost * -1); // subtracts deuterium
         for(Map.Entry<Ship, Integer> entry : fleet.entrySet()) { // Subtracts the fleets from current planet
             this.setShipCount(entry.getKey(), this.getShipCount(entry.getKey()) - entry.getValue());
         }
     }
 
-    public Building getMetalMine() {return metalMine;}
-    public int getMetalMineLevel() {return metalMine.getLevel();}
-    public Building getCrystalMine() {return crystalMine;}
-    public int getCrystalMineLevel() {return crystalMine.getLevel();}
-    public Building getDeuteriumMine() {return deuteriumMine;}
-    public int getDeuteriumMineLevel() {return deuteriumMine.getLevel();}
-    public int getShipyardLevel() {if(this.empire == Game.player) return shipyard.getLevel(); else return 999;}
+    Building getMetalMine() {return metalMine;}
+    int getMetalMineLevel() {return metalMine.getLevel();}
+    Building getCrystalMine() {return crystalMine;}
+    int getCrystalMineLevel() {return crystalMine.getLevel();}
+    Building getDeuteriumMine() {return deuteriumMine;}
+    int getDeuteriumMineLevel() {return deuteriumMine.getLevel();}
 
-    public Map<Ship, Integer> getShips() {return ships;}
-    public Map<Defense, Integer> getDefenses() {return defenses;}
-    public int getShipCount(Ship ship) {return ships.get(ship);}
-    public void setShipCount(Ship ship, int number) {ships.put(ship, number);}
-    public void setShips(Map<Ship, Integer> ships) {this.ships = ships;}
+    Map<Ship, Integer> getShips() {return ships;}
+    Map<Defense, Integer> getDefenses() {return defenses;}
+    int getShipCount(Ship ship) {return ships.get(ship);}
+    void setShipCount(Ship ship, int number) {ships.put(ship, number);}
+    void setShips(Map<Ship, Integer> ships) {this.ships = ships;}
 
-    public int getDefenseCount(Defense defense) {return defenses.get(defense);}
-    public void setDefenseCount(Defense defense, int number) {defenses.put(defense, number);}
-    public void setDefenses(Map<Defense, Integer> defenses) {this.defenses = defenses;}
+    int getDefenseCount(Defense defense) {return defenses.get(defense);}
+    void setDefenseCount(Defense defense, int number) {defenses.put(defense, number);}
+    void setDefenses(Map<Defense, Integer> defenses) {this.defenses = defenses;}
 
     public String getName() { return name; }
     public String getIndex() { return star.getSystemIndex() + ":" + planetIndex; }
     public String getFullInfo() { return "Planet " + getName() + " at " + stringCoordinates() + " at index " + getIndex(); }
     public String toString() { return getName(); }
     public Empire getEmpire() {return empire;}
-    public boolean isColonized() {return colonized;}
-    public boolean isDestroyed() {return destroyed;}
+    boolean isColonized() {return colonized;}
+    boolean isDestroyed() {return destroyed;}
 
-    public void addMetal(int diff) {localMetal = localMetal + diff; }
+    void addMetal(int diff) {
+        int temp = localMetal + diff;
+        if(temp < 0) System.out.println("Planet " + getName() + " has a negative amount of metal.");
+        localMetal = temp;
+    }
     public int getUnminedMetal() {return unminedMetal;}
     public void remUnminedMetal(int diff) {unminedMetal = unminedMetal - diff;}
     public double getMetalMultiplier() {return metalMultiplier;}
-    public void addCrystal(int diff) {localCrystal = localCrystal + diff; }
+    public void addCrystal(int diff) {
+        int temp = localCrystal + diff;
+        if(temp < 0) System.out.println("Planet " + getName() + " has a negative amount of crystal.");
+        localCrystal = temp; 
+    }
     public int getUnminedCrystal() {return unminedCrystal;}
     public void remUnminedCrystal(int diff) {unminedCrystal = unminedCrystal - diff;}
     public double getCrystalMultiplier() {return crystalMultiplier;}
-    public void addDeuterium(int diff) {localDeuterium = localDeuterium + diff; }
+    public void addDeuterium(int diff) {
+        int temp = localDeuterium + diff;
+        if(temp < 0) System.out.println("Planet " + getName() + " has a negative amount of deuterium.");
+        localDeuterium = temp; 
+    }
     public int getUnminedDeuterium() {return unminedDeuterium;}
     public void remUnminedDeuterium(int diff) {unminedDeuterium = unminedDeuterium - diff;}
     public double getDeuteriumMultiplier() {return deuteriumMultiplier;}
@@ -390,5 +369,4 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     public int getMetalGoal() {return metalGoal;}
     public int getCrystalGoal() {return crystalGoal;}
     public int getDeuteriumGoal() {return deuteriumGoal;}
-
 }
