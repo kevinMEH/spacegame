@@ -14,8 +14,6 @@ public class Defense {
     private double defensivePower; public double getDefensivePower() {return defensivePower;}
     public void setPower(double power) {this.defensivePower = power;} 
 
-    private int levelRequired = 1;
-
     public Defense(String name, int metalCost, int crystalCost, int health, int attack) {
         this.name = name;
         this.metalCost = metalCost;
@@ -27,12 +25,6 @@ public class Defense {
     public void build(Planet planet) {
         if(planet.getEmpire() != Game.player) { // If is bot, sep algorithm
             botBuild(planet);
-            return;
-        }
-        if(planet.getShipyardLevel() < this.getLevelRequired()) {
-            System.out.println("Your shipyard level is not high enough to build this defense!");
-            System.out.println("Your shipyard level: " + planet.getShipyardLevel());
-            System.out.println("Level required to build " + name +": " + this.getLevelRequired());
             return;
         }
         System.out.println("How many " + name + " would you like to build? Type anything other than a number to exit.");
@@ -93,9 +85,6 @@ public class Defense {
 
     public void setDescription(String description) {this.description = description;}
     public String getDescription() {return description;}
-
-    public int getLevelRequired() {return levelRequired;}
-    public void setLevelRequired(int i) {levelRequired = i;}
 
     public int getMetalCost() {return metalCost;}
     public int getCrystalCost() {return crystalCost;}
