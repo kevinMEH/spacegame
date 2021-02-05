@@ -1,7 +1,5 @@
+target/
 .vscode/
-Requirements.md
-/shelf/
-/workspace.xml
 .idea/
 Space Game.iml
 *.class
