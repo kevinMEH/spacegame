@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 enum Affiliation {
     ALIEN {@Override public String toString() {return "Alien";}},
@@ -218,15 +219,15 @@ public class Empire { // Empire, along with all stats
                 targetBuilding = planet.getMetalMine();
             }
         }
-        if(targetBuilding.enoughMaterials()) {
-            targetBuilding.levelUp();
+        if(targetBuilding.enoughMaterials(planet)) {
+            targetBuilding.levelUp(planet);
         } else { // Set goal to upgrade building
             planet.resetGoalStatus();
             planet.setGoal(
-                () -> targetBuilding.levelUp(), ActionType.DEVELOP, 
-                targetBuilding.getMetalCost(), 
-                targetBuilding.getCrystalCost(), 
-                targetBuilding.getDeuteriumCost()
+                () -> targetBuilding.levelUp(planet), ActionType.DEVELOP, 
+                targetBuilding.getMetalCost(planet), 
+                targetBuilding.getCrystalCost(planet), 
+                targetBuilding.getDeuteriumCost(planet)
             );
         }
     }
@@ -523,13 +524,13 @@ public class Empire { // Empire, along with all stats
                 }
             }
             private void levelUp(Planet planet) {
-                List<Building> buildings = planet.getBuildings();
+                Set<Building> buildings = planet.getBuildings().keySet();
                 System.out.println();
                 System.out.println("What would you like to build / level up?");
                 System.out.println("Type out the building name for more information. | \"Back\" to go back.");
                 System.out.println();
                 for(Building building : buildings) {
-                    System.out.println(building + " at level: " + building.getLevel());
+                    System.out.println(building + " at level: " + planet.getLevel(building));
                 }
                 System.out.println();
                 String response = Game.scanner.nextLine();
@@ -539,15 +540,15 @@ public class Empire { // Empire, along with all stats
                 for(Building building : buildings) {
                     if(response.equalsIgnoreCase(building.toString())) {
                         System.out.println();
-                        System.out.println("Current Level of Building: " + building.getLevel());
-                        printBuildingCost(building);
+                        System.out.println("Current Level of Building: " + planet.getLevel(building));
+                        printBuildingCost(building, planet);
                         System.out.println("Do you want to level up this building?");
                         System.out.println("Yes | No");
                         System.out.println();
                         response = Game.scanner.nextLine();
 
                         if(response.equalsIgnoreCase("yes")) {
-                            building.levelUp();
+                            building.levelUp(planet);
                         }
                         return;
                     }
@@ -617,10 +618,10 @@ public class Empire { // Empire, along with all stats
                 System.out.println("Defense not found! Try again.");
                 promptBuildDefenses(planet);
             }
-            private void printBuildingCost(Building building) {
-                if(building.getMetalCost() != 0) System.out.println("Metal Cost: " + building.getMetalCost());
-                if(building.getCrystalCost() != 0) System.out.println("Crystal Cost: " + building.getCrystalCost());
-                if(building.getDeuteriumCost() != 0) System.out.println("Deuterium Cost: " + building.getDeuteriumCost());
+            private void printBuildingCost(Building building, Planet planet) {
+                if(building.getMetalCost(planet) != 0) System.out.println("Metal Cost: " + building.getMetalCost(planet));
+                if(building.getCrystalCost(planet) != 0) System.out.println("Crystal Cost: " + building.getCrystalCost(planet));
+                if(building.getDeuteriumCost(planet) != 0) System.out.println("Deuterium Cost: " + building.getDeuteriumCost(planet));
             }
 
     private void promptAttack(Planet planet) { // TODO: Create better algorithm
