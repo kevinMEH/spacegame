@@ -1,8 +1,6 @@
 package spacegame;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 enum ActionType {
@@ -146,7 +144,6 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         status = Status.DEVELOP;
         colonized = true;
         if(firstRun) {
-            levelUpBuildings();
             System.out.println("You colonized this planet!");
             System.out.println("Would you like to give a new name to this planet?");
             System.out.println("Default name: " + name + " (The indices of the planet.)");
@@ -156,11 +153,6 @@ public class Planet extends Coordinates { //Individual planet, resource amount
             System.out.println("Please enter the name for your planet:");
             name = Game.scanner.nextLine();
         }
-    }
-    public void levelUpBuildings() {
-        metalMine.levelUp();
-        crystalMine.levelUp();
-        deuteriumMine.levelUp();
     }
     
     public void destroy() {
@@ -203,32 +195,20 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         unminedDeuterium = (int) (unminedDeuterium + unminedDeuterium * Math.random());
     }
 
-    public static final Ship fighters =
-        new Ship("Fighters", 
-        "Small, cheap and mobile ships.",
+    public static final Ship fighters = new Ship("Fighters", "Small, cheap and mobile ships.",
         4000, 3000, 2000, 1000, 1, 1.5);
-    public static final Ship destroyers = 
-        new Ship("Destroyers",
-        "Powerful ships that excel at destroying enemy defenses.",
+    public static final Ship destroyers = new Ship("Destroyers", "Powerful ships that excel at destroying enemy defenses.",
         10000, 12000, 5000, 5500, 1.3, 0.9);
-    public static final Ship tanks = 
-        new Ship("Tanks",
-        "Slow and heavily armored ships with average firepower.",
+    public static final Ship tanks = new Ship("Tanks", "Slow and heavily armored ships with average firepower.",
         15000, 8000, 8000, 4250, 1.7, 0.4);
-    public static final Ship hijackers = 
-        new Ship("Hijackers",
-        "Extremely powerful but fragile ships with serious firepower, specializing in taking down other ships.",
+    public static final Ship hijackers = new Ship("Hijackers", "Extremely powerful but fragile ships with serious firepower, specializing in taking down other ships.",
         4000, 10000, 1000, 6000, 1.5, 2.5);
-    public static final Ship missileLaunchers =
-        new Ship("Missile Launchers",
-        "Ships equipped with armor piercing missiles specializing in destroying defenses.",
+    public static final Ship missileLaunchers = new Ship("Missile Launchers", "Ships equipped with armor piercing missiles specializing in destroying defenses.",
         25000, 20000, 15000, 13000, 1.8, 0.6);
-    public static final Ship battleships =
-        new Ship("Battleships",
-        "The titans of the battlefield, battleships are powerful, armored ships specializing in destroying other ships.",
-        50000, 40000, 30000, 28000, 2.7  , 0.4 );
+    public static final Ship battleships = new Ship("Battleships", "The titans of the battlefield, battleships are powerful, armored ships specializing in destroying other ships.",
+        50000, 40000, 30000, 28000, 2.7, 0.4);
     
-    static { // Initialize attributes for ships
+    static { // ATtributes for Ships
         destroyers      .setMultiplier(1  , 1.4);
         hijackers       .setMultiplier(1.7, 1  );
         missileLaunchers.setMultiplier(1  , 1.4);
@@ -241,7 +221,6 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         missileLaunchers .setPower(16, 12);
         battleships      .setPower(34, 30.6);
     }
-    
     private Map<Ship, Integer> ships = new LinkedHashMap<>(); // Stores amount of ships of each type
     private void initializeShips() {
         ships.put(fighters, 0);
@@ -256,12 +235,11 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     static final Defense laserCannon = new Defense("Laser Cannon", 3000, 2000, 1500, 900);
     static final Defense plasmaCannon = new Defense("Plasma Cannon", 5000, 4000, 2800, 1900);
     static final Defense particleAccelerator = new Defense("Particle Accelerator", 10000, 8000, 5600, 4100);
-    static {
+    static { // Attributes for Defenses
         missileCannon      .setPower(1  );
         laserCannon        .setPower(1.5);
         plasmaCannon       .setPower(3  );
         particleAccelerator.setPower(6.5);
-        
         // TODO: Set in constructor instead of static block: make variables final:
         missileCannon.setDescription("Cheap and efficient missile turrets");
         laserCannon.setDescription("Shoots powerful lasers that pierces ships.");
@@ -276,33 +254,28 @@ public class Planet extends Coordinates { //Individual planet, resource amount
         defenses.put(particleAccelerator, 0);
     }
     
-    private List<Building> buildings;
-
-    private Building metalMine ;
-    private Building crystalMine ;
-    private Building deuteriumMine ;
-
-    // TODO: Make all buildings static to conserve memory and make hashmap of building and level of buildings:
+    static final Building metalMine     = new Building("Metal Mine"     , 3000, 2250, 250);
+    static final Building crystalMine   = new Building("Crystal Mine"   , 4000, 1500, 500);
+    static final Building deuteriumMine = new Building("Deuterium Mine" , 3500, 2000, 750);
+    private Map<Building, Integer> buildings;
     private void initializeBuildings() {
-        metalMine        = new Building("Metal Mine"       , this, 3000, 2250, 250);
-        crystalMine      = new Building("Crystal Mine"     , this, 4000, 1500, 500);
-        deuteriumMine    = new Building("Deuterium Mine"   , this, 3500, 2000, 750);
-        buildings = Arrays.asList(
-            metalMine,
-            crystalMine,
-            deuteriumMine
-        );
+        buildings.put(metalMine, 1);
+        buildings.put(crystalMine, 1);
+        buildings.put(deuteriumMine, 1);
     }
     
-    List<Building> getBuildings() {
-        return buildings;
+    void addLevel(Building building) {
+        buildings.put(building, buildings.get(building) + 1);
     }
     
+    Map<Building, Integer> getBuildings() { return buildings; }
+    
+    int getLevel(Building building) { return buildings.get(building); }
 
     void executeDefaultActions() { // Executes default actions
-        if(unminedMetal > 0) metalMine.mineMetal();
-        if(unminedCrystal > 0) crystalMine.mineCrystal();
-        if(unminedDeuterium > 0) deuteriumMine.mineDeuterium();
+        if(unminedMetal > 0) metalMine.mineMetal(this);
+        if(unminedCrystal > 0) crystalMine.mineCrystal(this);
+        if(unminedDeuterium > 0) deuteriumMine.mineDeuterium(this);
     }
     
     void attackSubtract(int deuteriumCost, Map<Ship, Integer> fleet) {
@@ -313,11 +286,11 @@ public class Planet extends Coordinates { //Individual planet, resource amount
     }
 
     Building getMetalMine() {return metalMine;}
-    int getMetalMineLevel() {return metalMine.getLevel();}
+    int getMetalMineLevel() {return buildings.get(metalMine);}
     Building getCrystalMine() {return crystalMine;}
-    int getCrystalMineLevel() {return crystalMine.getLevel();}
+    int getCrystalMineLevel() {return buildings.get(crystalMine);}
     Building getDeuteriumMine() {return deuteriumMine;}
-    int getDeuteriumMineLevel() {return deuteriumMine.getLevel();}
+    int getDeuteriumMineLevel() {return buildings.get(deuteriumMine);}
 
     Map<Ship, Integer> getShips() {return ships;}
     Map<Defense, Integer> getDefenses() {return defenses;}
