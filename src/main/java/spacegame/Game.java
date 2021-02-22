@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Game { // Main game and cycle
 
-    enum GameStatus{
+    enum GameStatus {
         ONGOING,
         SUCCESS,
         FAILURE,
@@ -25,6 +25,8 @@ public class Game { // Main game and cycle
 
     static int humanSystem = random.nextInt(9); // Default system they will appear in
     static int alienSystem = random.nextInt(9);
+    
+    static { while(alienSystem == humanSystem) alienSystem = random.nextInt(9); }
 
     static List<Expedition> expeditions = new ArrayList<>();
     static List<Expedition> expeditionsToBeRemoved = new ArrayList<>();
