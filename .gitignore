@@ -1,5 +1,6 @@
 target/
 .vscode/
 .idea/
-Space Game.iml
+.history/
 *.class
+src/main/java/spacegame/Test.java
