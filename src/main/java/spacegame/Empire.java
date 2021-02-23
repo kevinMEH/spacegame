@@ -57,7 +57,7 @@ public class Empire { // Empire, along with all stats
     public Empire(Affiliation affiliation) { // Initializes Bot Empire
         this.affiliation = affiliation;
         switch (affiliation) {
-            case ALIEN -> {
+            case ALIEN:
                 name = "Alien " + Game.aliens.size();
                 Game.aliens.add(this);
                 while (true) {
@@ -67,8 +67,8 @@ public class Empire { // Empire, along with all stats
                     addPlanet(planet);
                     break;
                 }
-            }
-            case HUMAN -> {
+                break;
+            case HUMAN:
                 name = "Human " + Game.humans.size();
                 Game.humans.add(this);
                 Planet planet;
@@ -79,18 +79,28 @@ public class Empire { // Empire, along with all stats
                     addPlanet(planet);
                     break;
                 }
-            }
+                break;
         }
     }
 
     void botStartActions() {
         for(Planet planet : planets) {
             switch (planet.getStatus()) {
-                case ALERT       -> alert      (planet);
-                case DEFENSIVE   -> defensive  (planet);
-                case DEVELOP     -> develop    (planet);
-                case OFFENSIVE   -> offensive  (planet);
-                case COORDINATED -> coordinated(planet);
+                case ALERT: 
+                    alert      (planet);
+                    break;
+                case DEFENSIVE: 
+                    defensive  (planet);
+                    break;
+                case DEVELOP:
+                    develop    (planet);
+                    break;
+                case OFFENSIVE: 
+                    offensive  (planet);
+                    break;
+                case COORDINATED: 
+                    coordinated(planet);
+                    break;
             }
             planet.executeDefaultActions();
         }
@@ -211,13 +221,15 @@ public class Empire { // Empire, along with all stats
         
         Building targetBuilding;
         switch (focusBuilding) {
-            case METAL -> targetBuilding = planet.getMetalMine();
-            case CRYSTAL -> targetBuilding = planet.getCrystalMine();
-            case DEUTERIUM -> targetBuilding = planet.getDeuteriumMine();
-            default -> {
+            case METAL: targetBuilding = planet.getMetalMine();
+                break;
+            case CRYSTAL: targetBuilding = planet.getCrystalMine();
+                break;
+            case DEUTERIUM: targetBuilding = planet.getDeuteriumMine();
+                break;
+            default:
                 System.out.println("ERROR: focusBuilding not set! developAction() + " + this);
                 targetBuilding = planet.getMetalMine();
-            }
         }
         if(targetBuilding.enoughMaterials(planet)) {
             targetBuilding.levelUp(planet);
@@ -395,21 +407,25 @@ public class Empire { // Empire, along with all stats
         if((Game.random.nextInt(15) == 0 && getDaysSinceLastAttack() > 15)
         || target == null || target.checkDestroyed()) {
             switch (affiliation) {
-                case ALIEN -> target = Game.humans.get(Game.random.nextInt(Game.humans.size()));
-                case HUMAN -> target = Game.aliens.get(Game.random.nextInt(Game.aliens.size()));
+                case ALIEN: 
+                    target = Game.humans.get(Game.random.nextInt(Game.humans.size()));
+                    break;
+                case HUMAN:
+                    target = Game.aliens.get(Game.random.nextInt(Game.aliens.size()));
+                    break;
             }
         }
     }
     public void forceNewTarget() {
         switch (affiliation) {
-            case ALIEN -> {
+            case ALIEN:
                 if(Game.humans.isEmpty()) System.out.println("ERROR: Humans empty, cannot get new target! forceNewTarget()");
                 target = Game.humans.get(Game.random.nextInt(Game.humans.size()));
-            }
-            case HUMAN -> {
+                break;
+            case HUMAN:
                 if(Game.aliens.isEmpty()) System.out.println("ERROR: Aliens empty, cannot get new target! forceNewTarget()");
                 target = Game.aliens.get(Game.random.nextInt(Game.humans.size()));
-            }
+                break;
         }
     }
 
@@ -514,13 +530,18 @@ public class Empire { // Empire, along with all stats
                 String response = Game.scanner.nextLine();
 
                 switch (response) {
-                    case "1", "(1)" -> levelUp(planet);
-                    case "2", "(2)" -> promptBuildShips(planet);
-                    case "3", "(3)" -> promptBuildDefenses(planet);
-                    default -> {
+                    case "1":
+                    case "(1)": levelUp(planet);
+                        break;
+                    case "2":
+                    case "(2)": promptBuildShips(planet);
+                        break;
+                    case "3":
+                    case "(3)": promptBuildDefenses(planet);
+                        break;
+                    default:
                         System.out.println("You did not enter a valid response!");
                         System.out.println();
-                    }
                 }
             }
             private void levelUp(Planet planet) {

@@ -141,14 +141,14 @@ public class Game { // Main game and cycle
 
     private static boolean checkGameEnd() {
         switch (player.getAffiliation()) {
-            case ALIEN -> {
+            case ALIEN:
                 if (humans.isEmpty()) gameStatus = GameStatus.SUCCESS;
                 if (!aliens.contains(player)) gameStatus = GameStatus.FAILURE;
-            }
-            case HUMAN -> {
+                break;
+            case HUMAN:
                 if (aliens.isEmpty()) gameStatus = GameStatus.SUCCESS;
                 if (!humans.contains(player)) gameStatus = GameStatus.FAILURE;
-            }
+                break;
         }
         if(gameStatus == GameStatus.FAILURE) {
             typewriter("All of your planets were destroyed! You lost...");

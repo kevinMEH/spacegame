@@ -198,25 +198,27 @@ public class Expedition {
     }
     public void conclude(Planet attacker, Planet defender) {
         switch (expeditionStatus) {
-            case SUCCESS -> {
+            case SUCCESS:
                 System.out.println(attacker.getName() + " has successfully destroyed " + defender.getName() + "!");
                 defender.destroy();
                 loot();
                 startReturn();
-            }
-            case FAILURE -> {
+                break;
+            case FAILURE:
                 System.out.println(defender.getName() + " has successfully defended against " + attacker.getName() + "!");
                 removeThis();
-            }
-            case DRAW -> {
+                break;
+            case DRAW:
                 System.out.println(attacker.getName() + " and " + defender.getName() + " were unable to destroy each other.");
                 startReturn();
-            }
-            case ONGOING -> System.out.println("ERROR: attackStatus ONGOING at conclude()!");
-            case EMPTY -> {
+                break;
+            case ONGOING:
+                System.out.println("ERROR: attackStatus ONGOING at conclude()!");
+                break;
+            case EMPTY: 
                 System.out.println(attacker.getName() + " arrived at " + defender.getName() + " but it was already destroyed!");
                 startReturn();
-            }
+                break;
         }
     }
     public void loot() {
@@ -322,10 +324,17 @@ public class Expedition {
     }
     public void expeditionSequence() {
         switch (expeditionType) {
-            case ATTACK -> attackSequence();
-            case COLONIZATION -> colonizationSequence();
-            case PERMTRANSPORT, TRANSPORT -> transportSequence();
-            default -> System.out.println("ERROR: Default reached in expeditionSequence.");
+            case ATTACK: 
+                attackSequence();
+                break;
+            case COLONIZATION: 
+                colonizationSequence();
+                break;
+            case PERMTRANSPORT:
+            case TRANSPORT:
+                transportSequence();
+                break;
+            default: System.out.println("ERROR: Default reached in expeditionSequence.");
         }
     }
 
